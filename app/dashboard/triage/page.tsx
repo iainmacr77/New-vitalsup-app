@@ -4,10 +4,11 @@ import { useState, useEffect } from "react"
 import { Check, X, Lock, ExternalLink, Edit } from "lucide-react"
 import { Card } from "@/components/ui/card"
 import { supabase } from "@/lib/supabase"
-import { SidebarTrigger } from "@/components/ui/sidebar"
+
 import { Separator } from "@/components/ui/separator"
 import { Input } from "@/components/ui/input"
 import { Search } from "lucide-react"
+import { Button } from "@/components/ui/button"
 
 type ReviewStatus = "accept" | "paywalled" | "reject"
 
@@ -149,7 +150,7 @@ export default function ApprovalPage() {
   return (
     <>
       <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
-        <SidebarTrigger className="-ml-1" />
+
         <Separator orientation="vertical" className="mr-2 h-4" />
         <div className="flex-1 flex justify-end">
           <div className="relative">
@@ -164,124 +165,141 @@ export default function ApprovalPage() {
           </div>
         </div>
       </header>
-      <div className="flex flex-1 flex-col gap-4 p-4">
-        <div className="mb-6">
-          <h1 className="text-3xl font-bold text-gray-900">Triage</h1>
-          <p className="text-gray-600 mt-1">Quickly review the articles passed by the AI Triage Officer.</p>
-        </div>
+      
+      <div className="mb-6">
+        <h1 className="text-3xl font-bold text-gray-900">Triage</h1>
+        <p className="text-gray-600 mt-1">Quickly review the articles passed by the AI Triage Officer.</p>
+      </div>
 
-        {/* Article Cards */}
-        <div className="space-y-1 mb-8">
-          {articles.map((article) => (
-            <Card
-              key={article.id}
-              className="p-6 bg-white border border-gray-200 hover:shadow-md transition-shadow duration-200"
-            >
-              <div className="flex items-center justify-between gap-6">
-                {/* Left Section - Article Information */}
-                <div className="flex-1 min-w-0">
-                  <h3 className="text-lg font-medium text-gray-900 leading-6 mb-3">{article.title}</h3>
-                  <button
-                    onClick={() => window.open(article.sourceUrl, "_blank")}
-                    className="inline-flex items-center gap-1 text-sm text-blue-600 hover:text-blue-700 transition-colors"
-                  >
-                    <ExternalLink className="w-4 h-4 text-blue-600" />
-                    View Source
-                  </button>
-                </div>
+      {/* Article Cards */}
+      <div className="space-y-1 mb-8">
+        {articles.map((article) => (
+          <Card
+            key={article.id}
+            className="p-6 bg-white border border-gray-200 hover:shadow-md transition-shadow duration-200"
+          >
+            <div className="flex items-center justify-between gap-6">
+              {/* Left Section - Article Information */}
+              <div className="flex-1 min-w-0">
+                <h3 className="text-lg font-medium text-gray-900 leading-6 mb-3">{article.title}</h3>
+                <button
+                  onClick={() => window.open(article.sourceUrl, "_blank")}
+                  className="inline-flex items-center gap-1 text-sm text-blue-600 hover:text-blue-700 transition-colors"
+                >
+                  <ExternalLink className="w-4 h-4 text-blue-600" />
+                  View Source
+                </button>
+              </div>
 
-                {/* Right Section - Action Buttons */}
-                <div className="flex items-center gap-2 flex-shrink-0">
-                  {/* Accept Button */}
-                  <button
-                    onClick={() => updateArticleStatus(article.id, "accept")}
-                    className={`inline-flex items-center gap-1 px-2.5 py-1.5 rounded-full text-xs font-medium transition-colors ${
-                      article.status === "accept"
-                        ? "bg-green-500 text-white"
-                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                    }`}
-                  >
-                    <Check className="w-3 h-3" />
-                    Accept
-                  </button>
+              {/* Right Section - Action Buttons */}
+              <div className="flex items-center gap-2 flex-shrink-0">
+                {/* Accept Button */}
+                <button
+                  onClick={() => updateArticleStatus(article.id, "accept")}
+                  className={`inline-flex items-center gap-1 px-2.5 py-1.5 rounded-full text-xs font-medium transition-colors ${
+                    article.status === "accept"
+                      ? "bg-green-500 text-white"
+                      : "bg-gray-100 text-gray-700 hover:bg-green-100 hover:text-green-700"
+                  }`}
+                >
+                  <Check className="w-3 h-3" />
+                  Accept
+                </button>
 
-                  {/* Edit Alternative URL Button - only show when status is accept */}
-                  {article.status === "accept" && (
-                    <button
-                      onClick={() => toggleAlternativeUrlEdit(article.id)}
-                      className="inline-flex items-center gap-1 px-2 py-1.5 rounded-full text-xs font-medium transition-colors bg-blue-100 text-blue-700 hover:bg-blue-200"
-                      title="Edit alternative URL"
-                    >
-                      <Edit className="w-3 h-3" />
-                    </button>
+                {/* Paywalled Button */}
+                <button
+                  onClick={() => updateArticleStatus(article.id, "paywalled")}
+                  className={`inline-flex items-center gap-1 px-2.5 py-1.5 rounded-full text-xs font-medium transition-colors ${
+                    article.status === "paywalled"
+                      ? "bg-yellow-500 text-white"
+                      : "bg-gray-100 text-gray-700 hover:bg-yellow-100 hover:text-yellow-700"
+                  }`}
+                >
+                  <Lock className="w-3 h-3" />
+                  Paywalled
+                </button>
+
+                {/* Reject Button */}
+                <button
+                  onClick={() => updateArticleStatus(article.id, "reject")}
+                  className={`inline-flex items-center gap-1 px-2.5 py-1.5 rounded-full text-xs font-medium transition-colors ${
+                    article.status === "reject"
+                      ? "bg-red-500 text-white"
+                      : "bg-gray-100 text-gray-700 hover:bg-red-100 hover:text-red-700"
+                  }`}
+                >
+                  <X className="w-3 h-3" />
+                  Reject
+                </button>
+              </div>
+            </div>
+
+            {/* Alternative URL Input for Accepted Articles */}
+            {article.status === "accept" && (
+              <div className="mt-4 pt-4 border-t border-gray-200">
+                <div className="flex items-center gap-2">
+                  <label className="text-sm font-medium text-gray-700">Alternative URL (optional):</label>
+                  {editingAlternativeUrl === article.id ? (
+                    <div className="flex-1 flex items-center gap-2">
+                      <Input
+                        type="url"
+                        placeholder="https://example.com/alternative-version"
+                        value={article.alternativeUrl || ""}
+                        onChange={(e) => updateAlternativeUrl(article.id, e.target.value)}
+                        className="flex-1"
+                      />
+                      <Button
+                        size="sm"
+                        onClick={() => toggleAlternativeUrlEdit(article.id)}
+                        className="bg-blue-600 hover:bg-blue-700 text-white"
+                      >
+                        Save
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm text-gray-600">
+                        {article.alternativeUrl || "No alternative URL set"}
+                      </span>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => toggleAlternativeUrlEdit(article.id)}
+                      >
+                        <Edit className="w-3 h-3" />
+                      </Button>
+                    </div>
                   )}
-
-                  {/* Paywalled Button */}
-                  <button
-                    onClick={() => updateArticleStatus(article.id, "paywalled")}
-                    className={`inline-flex items-center gap-1 px-2.5 py-1.5 rounded-full text-xs font-medium transition-colors ${
-                      article.status === "paywalled"
-                        ? "bg-orange-500 text-white"
-                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                    }`}
-                  >
-                    <Lock className="w-3 h-3" />
-                    Paywalled
-                  </button>
-
-                  {/* Reject Button */}
-                  <button
-                    onClick={() => updateArticleStatus(article.id, "reject")}
-                    className={`inline-flex items-center gap-1 px-2.5 py-1.5 rounded-full text-xs font-medium transition-colors ${
-                      article.status === "reject"
-                        ? "bg-slate-600 text-white"
-                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                    }`}
-                  >
-                    <X className="w-3 h-3" />
-                    Reject
-                  </button>
                 </div>
               </div>
-              
-              {/* Alternative URL Input Field - only show when editing and status is accept */}
-              {article.status === "accept" && editingAlternativeUrl === article.id && (
-                <div className="mt-4 pt-4 border-t border-gray-200">
-                  <div className="flex items-center gap-2">
-                    <label htmlFor={`alternative-url-${article.id}`} className="text-sm font-medium text-gray-700">
-                      Alternative URL:
-                    </label>
-                    <input
-                      id={`alternative-url-${article.id}`}
-                      type="url"
-                      placeholder="https://example.com/alternative-article"
-                      value={article.alternativeUrl || ""}
-                      onChange={(e) => updateAlternativeUrl(article.id, e.target.value)}
-                      className="flex-1 px-3 py-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    />
-                  </div>
-                  <p className="mt-1 text-xs text-gray-500">
-                    This URL will replace the original source URL when the article is accepted.
-                  </p>
-                </div>
-              )}
-            </Card>
-          ))}
-        </div>
-
-        {/* Finalize Button and Submission Feedback */}
-        <div className="text-center">
-          <button
-            onClick={handleFinalizeReviews}
-            className="px-8 py-3 text-lg font-semibold bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white rounded-xl shadow-lg transition-all duration-200 disabled:opacity-60"
-            disabled={submitting}
-          >
-            {submitting ? "Finalizing..." : "Finalize Reviews"}
-          </button>
-          {submitError && <div className="mt-4 text-red-600">{submitError}</div>}
-          {submitSuccess && <div className="mt-4 text-green-600">{submitSuccess}</div>}
-        </div>
+            )}
+          </Card>
+        ))}
       </div>
+
+      {/* Finalize Button */}
+      <div className="flex justify-center">
+        <Button
+          onClick={handleFinalizeReviews}
+          disabled={submitting}
+          className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 text-lg"
+        >
+          {submitting ? "Finalizing..." : "Finalize Reviews"}
+        </Button>
+      </div>
+
+      {/* Status Messages */}
+      {submitError && (
+        <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-md">
+          <p className="text-red-800">{submitError}</p>
+        </div>
+      )}
+
+      {submitSuccess && (
+        <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-md">
+          <p className="text-green-800">{submitSuccess}</p>
+        </div>
+      )}
     </>
   )
 }

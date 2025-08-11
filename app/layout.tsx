@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import './globals.css'
+import AppShellWrapper from '@/components/base44/AppShellWrapper'
 
 export const metadata: Metadata = {
   title: 'VitalsUp',
@@ -45,7 +46,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <AppShellWrapper>
+          {children}
+        </AppShellWrapper>
+      </body>
     </html>
   )
 }
