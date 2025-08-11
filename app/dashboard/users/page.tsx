@@ -13,7 +13,7 @@ import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { SidebarTrigger } from "@/components/ui/sidebar"
+
 import { Separator } from "@/components/ui/separator"
 import { Badge } from "@/components/ui/badge"
 import {
@@ -410,7 +410,7 @@ export default function UsersPage() {
     return (
       <div className="flex h-screen items-center justify-center">
         <div className="text-center">
-          <Loader2 className="mx-auto h-8 w-8 animate-spin text-primary" />
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
           <p className="mt-2 text-sm text-muted-foreground">Loading user management...</p>
         </div>
       </div>
@@ -420,7 +420,7 @@ export default function UsersPage() {
   return (
     <>
       <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
-        <SidebarTrigger className="-ml-1" />
+
         <Separator orientation="vertical" className="mr-2 h-4" />
         <div className="flex-1 flex justify-end">
           <div className="relative">
@@ -435,181 +435,180 @@ export default function UsersPage() {
           </div>
         </div>
       </header>
-      <div className="flex flex-1 flex-col gap-4 p-4">
-        <div className="mb-6">
-          <h1 className="text-3xl font-bold tracking-tight">User Management</h1>
-          <p className="text-muted-foreground mt-1">Manage team members for your practice</p>
-        </div>
+      
+      <div className="mb-6">
+        <h1 className="text-3xl font-bold tracking-tight">User Management</h1>
+        <p className="text-muted-foreground mt-1">Manage team members for your practice</p>
+      </div>
 
-        {/* Role Explanation */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Shield className="h-5 w-5 text-primary" />
-              Understanding User Roles
-            </CardTitle>
-            <CardDescription>
-              Each user has a specific role that determines what they can do in the system.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-              {Object.entries(roleDescriptions).map(([role, { title, description, permissions, color }]) => (
-                <div key={role} className="rounded-lg border p-4">
-                  <div className="mb-2 flex items-center gap-2">
-                    <div className={`h-3 w-3 rounded-full ${color}`} />
-                    <h3 className="font-semibold">{title}</h3>
-                  </div>
-                  <p className="mb-3 text-sm text-muted-foreground">{description}</p>
-                  <div className="space-y-1">
-                    {permissions.map((permission) => (
-                      <div key={permission} className="flex items-center gap-2 text-xs">
-                        <Check className="h-3 w-3 text-green-500" />
-                        <span>{permission}</span>
-                      </div>
-                    ))}
-                  </div>
+      {/* Role Explanation */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Shield className="h-5 w-5 text-primary" />
+            Understanding User Roles
+          </CardTitle>
+          <CardDescription>
+            Each user has a specific role that determines what they can do in the system.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            {Object.entries(roleDescriptions).map(([role, { title, description, permissions, color }]) => (
+              <div key={role} className="rounded-lg border p-4">
+                <div className="mb-2 flex items-center gap-2">
+                  <div className={`h-3 w-3 rounded-full ${color}`} />
+                  <h3 className="font-semibold">{title}</h3>
                 </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Team Members List */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Team Members</CardTitle>
-            <CardDescription>
-              People with access to {newsletterProfile?.practice_name || "this newsletter profile"}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {userRoles.length === 0 ? (
-                <div className="flex h-32 items-center justify-center rounded-lg border border-dashed">
-                  <div className="text-center">
-                    <p className="text-sm text-muted-foreground">No team members found</p>
-                    <Button variant="outline" size="sm" className="mt-2" onClick={() => setInviteDialogOpen(true)}>
-                      <UserPlus className="mr-2 h-4 w-4" />
-                      Invite Your First Team Member
-                    </Button>
-                  </div>
+                <p className="mb-3 text-sm text-muted-foreground">{description}</p>
+                <div className="space-y-1">
+                  {permissions.map((permission) => (
+                    <div key={permission} className="flex items-center gap-2 text-xs">
+                      <Check className="h-3 w-3 text-green-500" />
+                      <span>{permission}</span>
+                    </div>
+                  ))}
                 </div>
-              ) : (
-                <div className="rounded-md border">
-                  <div className="grid grid-cols-12 gap-2 border-b bg-muted/50 p-4 text-sm font-medium">
-                    <div className="col-span-4">User</div>
-                    <div className="col-span-2">Role</div>
-                    <div className="col-span-3">Status</div>
-                    <div className="col-span-3">Actions</div>
-                  </div>
-                  <div className="divide-y">
-                    {userRoles.map((userRole) => {
-                      const email = userRole.user?.email || userRole.invitation_email
-                      const name = getUserDisplayName(userRole.user)
-                      const isCurrentUser = currentUser?.id === userRole.user?.id
-                      const isPending = !userRole.invitation_accepted && !userRole.user
-                      const role = userRole.role as keyof typeof roleDescriptions
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
 
-                      return (
-                        <div key={userRole.id} className="grid grid-cols-12 gap-2 p-4">
-                          <div className="col-span-4 flex items-center gap-3">
-                            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary/10 text-sm font-medium uppercase text-primary">
-                              {name[0]}
-                            </div>
-                            <div className="flex flex-col">
-                              <span className="font-medium">{name}</span>
-                              <span className="text-xs text-muted-foreground">{email}</span>
-                            </div>
-                          </div>
-                          <div className="col-span-2 flex items-center">
-                            <div className="flex items-center gap-1.5">
-                              <div className={`h-2 w-2 rounded-full ${roleDescriptions[role].color}`} />
-                              <span>{roleDescriptions[role].title}</span>
-                            </div>
-                          </div>
-                          <div className="col-span-3 flex items-center">
-                            {isPending ? (
-                              <Badge variant="outline" className="flex items-center gap-1 bg-yellow-50 text-yellow-700">
-                                <AlertCircle className="h-3 w-3" />
-                                <span>Invitation Pending</span>
-                              </Badge>
-                            ) : (
-                              <Badge variant="outline" className="flex items-center gap-1 bg-green-50 text-green-700">
-                                <Check className="h-3 w-3" />
-                                <span>Active</span>
-                              </Badge>
-                            )}
-                          </div>
-                          <div className="col-span-3 flex items-center gap-2">
-                            {userRole !== "owner" && (
-                              <Select
-                                defaultValue={userRole.role}
-                                onValueChange={(newRole) => handleChangeRole(userRole.id, newRole, email)}
-                                disabled={isCurrentUser || userRole === "owner"}
-                              >
-                                <SelectTrigger className="h-8 w-[130px]">
-                                  <SelectValue placeholder="Change role" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  {Object.entries(roleDescriptions).map(([role, { title }]) => (
-                                    <SelectItem key={role} value={role}>
-                                      {title}
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                            )}
+      {/* Team Members List */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Team Members</CardTitle>
+          <CardDescription>
+            People with access to {newsletterProfile?.practice_name || "this newsletter profile"}
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            {userRoles.length === 0 ? (
+              <div className="flex h-32 items-center justify-center rounded-lg border border-dashed">
+                <div className="text-center">
+                  <p className="text-sm text-muted-foreground">No team members found</p>
+                  <Button variant="outline" size="sm" className="mt-2" onClick={() => setInviteDialogOpen(true)}>
+                    <UserPlus className="mr-2 h-4 w-4" />
+                    Invite Your First Team Member
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <div className="rounded-md border">
+                <div className="grid grid-cols-12 gap-2 border-b bg-muted/50 p-4 text-sm font-medium">
+                  <div className="col-span-4">User</div>
+                  <div className="col-span-2">Role</div>
+                  <div className="col-span-3">Status</div>
+                  <div className="col-span-3">Actions</div>
+                </div>
+                <div className="divide-y">
+                  {userRoles.map((userRole) => {
+                    const email = userRole.user?.email || userRole.invitation_email
+                    const name = getUserDisplayName(userRole.user)
+                    const isCurrentUser = currentUser?.id === userRole.user?.id
+                    const isPending = !userRole.invitation_accepted && !userRole.user
+                    const role = userRole.role as keyof typeof roleDescriptions
 
-                            {!isCurrentUser && (
-                              <AlertDialog>
-                                <AlertDialogTrigger asChild>
-                                  <Button variant="outline" size="icon" className="h-8 w-8 text-red-500">
-                                    <Trash2 className="h-4 w-4" />
-                                  </Button>
-                                </AlertDialogTrigger>
-                                <AlertDialogContent>
-                                  <AlertDialogHeader>
-                                    <AlertDialogTitle>Remove team member?</AlertDialogTitle>
-                                    <AlertDialogDescription>
-                                      This will revoke {name}'s access to this newsletter profile. This action cannot be
-                                      undone.
-                                    </AlertDialogDescription>
-                                  </AlertDialogHeader>
-                                  <AlertDialogFooter>
-                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                    <AlertDialogAction
-                                      onClick={() => handleRemoveUser(userRole.id, email)}
-                                      className="bg-red-500 text-white hover:bg-red-600"
-                                    >
-                                      Remove
-                                    </AlertDialogAction>
-                                  </AlertDialogFooter>
-                                </AlertDialogContent>
-                              </AlertDialog>
-                            )}
+                    return (
+                      <div key={userRole.id} className="grid grid-cols-12 gap-2 p-4">
+                        <div className="col-span-4 flex items-center gap-3">
+                          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary/10 text-sm font-medium uppercase text-primary">
+                            {name[0]}
+                          </div>
+                          <div className="flex flex-col">
+                            <span className="font-medium">{name}</span>
+                            <span className="text-xs text-muted-foreground">{email}</span>
                           </div>
                         </div>
-                      )
-                    })}
-                  </div>
+                        <div className="col-span-2 flex items-center">
+                          <div className="flex items-center gap-1.5">
+                            <div className={`h-2 w-2 rounded-full ${roleDescriptions[role].color}`} />
+                            <span>{roleDescriptions[role].title}</span>
+                          </div>
+                        </div>
+                        <div className="col-span-3 flex items-center">
+                          {isPending ? (
+                            <Badge variant="outline" className="flex items-center gap-1 bg-yellow-50 text-yellow-700">
+                              <AlertCircle className="h-3 w-3" />
+                              <span>Invitation Pending</span>
+                            </Badge>
+                          ) : (
+                            <Badge variant="outline" className="flex items-center gap-1 bg-green-50 text-green-700">
+                              <Check className="h-3 w-3" />
+                              <span>Active</span>
+                            </Badge>
+                          )}
+                        </div>
+                        <div className="col-span-3 flex items-center gap-2">
+                          {userRole !== "owner" && (
+                            <Select
+                              defaultValue={userRole.role}
+                              onValueChange={(newRole) => handleChangeRole(userRole.id, newRole, email)}
+                              disabled={isCurrentUser || userRole === "owner"}
+                            >
+                              <SelectTrigger className="h-8 w-[130px]">
+                                <SelectValue placeholder="Change role" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {Object.entries(roleDescriptions).map(([role, { title }]) => (
+                                  <SelectItem key={role} value={role}>
+                                    {title}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          )}
+
+                          {!isCurrentUser && (
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <Button variant="outline" size="icon" className="h-8 w-8 text-red-500">
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>Remove team member?</AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                    This will revoke {name}'s access to this newsletter profile. This action cannot be
+                                    undone.
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                  <AlertDialogAction
+                                    onClick={() => handleRemoveUser(userRole.id, email)}
+                                    className="bg-red-500 text-white hover:bg-red-600"
+                                  >
+                                    Remove
+                                  </AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
+                          )}
+                        </div>
+                      </div>
+                    )
+                  })}
                 </div>
-              )}
-            </div>
-          </CardContent>
-          <CardFooter className="border-t bg-muted/50 px-6 py-4">
-            <div className="flex items-center justify-between w-full">
-              <p className="text-sm text-muted-foreground">
-                {userRoles.length} team member{userRoles.length !== 1 ? "s" : ""}
-              </p>
-              <Button variant="outline" size="sm" onClick={() => setInviteDialogOpen(true)}>
-                <UserPlus className="mr-2 h-4 w-4" />
-                Invite User
-              </Button>
-            </div>
-          </CardFooter>
-        </Card>
-      </div>
+              </div>
+            )}
+          </div>
+        </CardContent>
+        <CardFooter className="border-t bg-muted/50 px-6 py-4">
+          <div className="flex items-center justify-between w-full">
+            <p className="text-sm text-muted-foreground">
+              {userRoles.length} team member{userRoles.length !== 1 ? "s" : ""}
+            </p>
+            <Button variant="outline" size="sm" onClick={() => setInviteDialogOpen(true)}>
+              <UserPlus className="mr-2 h-4 w-4" />
+              Invite User
+            </Button>
+          </div>
+        </CardFooter>
+      </Card>
     </>
   )
 }

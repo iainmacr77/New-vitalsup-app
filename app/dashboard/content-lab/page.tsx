@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { SidebarTrigger } from "@/components/ui/sidebar"
+
 import { Separator } from "@/components/ui/separator"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { supabase } from "@/lib/supabase"
@@ -309,7 +309,7 @@ export default function ContentLab() {
   return (
     <>
       <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
-        <SidebarTrigger className="-ml-1" />
+
         <Separator orientation="vertical" className="mr-2 h-4" />
         <div className="flex-1 flex justify-end">
           <div className="relative">
@@ -326,459 +326,458 @@ export default function ContentLab() {
           </div>
         </div>
       </header>
-      <div className="flex flex-1 flex-col gap-4 p-4">
-        <div className="mb-6">
-          <h1 className="text-3xl font-bold text-gray-900">Content Lab</h1>
-          <p className="text-gray-600 mt-1">Discover and share the latest medical research and insights</p>
-        </div>
+      
+      <div className="mb-6">
+        <h1 className="text-3xl font-bold text-gray-900">Content Lab</h1>
+        <p className="text-gray-600 mt-1">Discover and share the latest medical research and insights</p>
+      </div>
 
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-3 mb-6 bg-gray-100 p-1 rounded-lg">
-            <TabsTrigger 
-              value="articles"
-              className="data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=active]:shadow-sm"
-            >
-              Articles & Research
-            </TabsTrigger>
-            <TabsTrigger 
-              value="podcasts"
-              className="data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=active]:shadow-sm"
-            >
-              Podcasts
-            </TabsTrigger>
-            <TabsTrigger 
-              value="paywalled"
-              className="data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=active]:shadow-sm"
-            >
-              Paywalled Articles
-            </TabsTrigger>
-          </TabsList>
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <TabsList className="grid w-full grid-cols-3 mb-6 bg-gray-100 p-1 rounded-lg">
+          <TabsTrigger 
+            value="articles"
+            className="data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=active]:shadow-sm"
+          >
+            Articles & Research
+          </TabsTrigger>
+          <TabsTrigger 
+            value="podcasts"
+            className="data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=active]:shadow-sm"
+          >
+            Podcasts
+          </TabsTrigger>
+          <TabsTrigger 
+            value="paywalled"
+            className="data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=active]:shadow-sm"
+          >
+            Paywalled Articles
+          </TabsTrigger>
+        </TabsList>
 
-          <TabsContent value="articles" className="space-y-6">
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
-              <div className="relative mb-6">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-                <Input
-                  type="text"
-                  placeholder="Search articles, topics, or tags..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10 h-12 text-base border-gray-300 focus:border-blue-500 focus:ring-blue-500"
-                />
+        <TabsContent value="articles" className="space-y-6">
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
+            <div className="relative mb-6">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+              <Input
+                type="text"
+                placeholder="Search articles, topics, or tags..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10 h-12 text-base border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+              />
+            </div>
+
+            <div className="flex flex-wrap gap-2 mb-6">
+              {isLoadingCategories ? (
+                <div className="flex items-center gap-2">
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+                  <span className="text-sm text-gray-600">Loading categories...</span>
+                </div>
+              ) : (
+                categories.map((category) => (
+                  <Button
+                    key={category}
+                    variant={selectedCategory === category ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setSelectedCategory(category)}
+                    className={`${
+                      selectedCategory === category
+                        ? "bg-blue-600 hover:bg-blue-700 text-white"
+                        : "bg-white hover:bg-gray-50 text-gray-700 border-gray-300"
+                    }`}
+                  >
+                    {category}
+                  </Button>
+                ))
+              )}
+            </div>
+
+            <div className="flex items-center gap-2">
+              <Filter className="h-4 w-4 text-gray-500" />
+              <span className="text-sm text-gray-600">Sort by:</span>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="sm" className="bg-white">
+                    {sortOptions.find((option) => option.value === sortBy)?.label}
+                    <ChevronDown className="ml-2 h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start">
+                  {sortOptions.map((option) => (
+                    <DropdownMenuItem key={option.value} onClick={() => setSortBy(option.value)}>
+                      {option.label}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          </div>
+
+          {isLoading && (
+            <div className="flex items-center justify-center py-12">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+              <span className="ml-3 text-gray-600">Loading articles...</span>
+            </div>
+          )}
+
+          {!isLoading && filteredArticles.length === 0 && (
+            <div className="text-center py-12">
+              <div className="h-24 w-24 text-gray-300 mb-4">
+                <Search className="h-full w-full" />
               </div>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">No results found</h3>
+              <p className="text-gray-600">Try adjusting your search terms or filters to find what you're looking for.</p>
+            </div>
+          )}
 
-              <div className="flex flex-wrap gap-2 mb-6">
-                {isLoadingCategories ? (
-                  <div className="flex items-center gap-2">
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
-                    <span className="text-sm text-gray-600">Loading categories...</span>
+          {!isLoading && filteredArticles.length > 0 && (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {filteredArticles.map((article) => (
+                <Card
+                  key={article.id}
+                  className="bg-white hover:shadow-md transition-shadow duration-200 border border-gray-200"
+                >
+                  <CardHeader className="pb-4">
+                    <div className="flex items-start justify-between gap-4 mb-3">
+                      <Badge variant="outline" className={`${getCategoryColor(article.category)} font-medium`}>
+                        {article.category}
+                      </Badge>
+                      <div className="flex items-center text-sm text-gray-500 gap-1">
+                        <Calendar className="h-4 w-4" />
+                        {formatDate(article.created_at)}
+                      </div>
+                    </div>
+                    <h3 className="text-xl font-bold text-gray-900 leading-tight line-clamp-2">{article.headline}</h3>
+                  </CardHeader>
+                  <CardContent className="pt-0">
+                    <div className="mb-4">
+                      <p className={`text-gray-600 leading-relaxed ${expandedCards.has(article.id) ? '' : 'line-clamp-3'}`}>
+                        {article.summary}
+                      </p>
+                      {article.summary.length > 150 && (
+                        <button
+                          onClick={() => toggleCardExpansion(article.id)}
+                          className="text-blue-600 hover:text-blue-700 font-medium text-sm mt-2 focus:outline-none"
+                        >
+                          {expandedCards.has(article.id) ? 'Read less' : 'Read more'}
+                        </button>
+                      )}
+                    </div>
+
+                    <div className="flex flex-wrap gap-2 mb-4">
+                      {article.tags.slice(0, 3).map((tag) => (
+                        <span
+                          key={tag}
+                          className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800"
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                      {article.tags.length > 3 && (
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
+                          +{article.tags.length - 3} more
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-4 text-sm text-gray-500">
+                        <div className="flex items-center gap-1">
+                          <Bookmark className="h-4 w-4" />
+                          0
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <Share2 className="h-4 w-4" />
+                          0
+                        </div>
+                      </div>
+                      <Button 
+                        className="bg-blue-600 hover:bg-blue-700 text-white"
+                        onClick={() => window.open(article.source_url, '_blank')}
+                      >
+                        Source Article
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
+        </TabsContent>
+
+        <TabsContent value="podcasts" className="space-y-6">
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-12 text-center">
+            <div className="h-24 w-24 text-gray-300 mb-6">
+              <svg className="h-full w-full" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+              </svg>
+            </div>
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">Podcast Content Lab - Coming Soon</h2>
+            <p className="text-gray-600 w-full">
+              We're working on bringing you curated medical podcasts and audio content. 
+              Stay tuned for updates!
+            </p>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="paywalled" className="space-y-6">
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
+            <div className="text-center mb-8">
+              <div className="h-16 w-16 text-blue-600 mb-4">
+                <svg className="h-full w-full" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                </svg>
+              </div>
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">Process a Paywalled Article</h2>
+              <p className="text-gray-600">
+                Paste a URL or DOI to find open-access versions of paywalled articles
+              </p>
+            </div>
+
+            <form onSubmit={handleProcessArticle} className="space-y-6 w-full">
+              <div>
+                <label htmlFor="article-url" className="block text-sm font-medium text-gray-700 mb-2">
+                  Article URL or DOI
+                </label>
+                <Input
+                  id="article-url"
+                  type="text"
+                  value={articleUrl}
+                  onChange={handleInputChange}
+                  placeholder="https://example.com/article or 10.1234/example.doi"
+                  className={`w-full h-12 text-base border-gray-300 focus:border-blue-500 focus:ring-blue-500 ${
+                    error ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : ''
+                  }`}
+                  disabled={isProcessing}
+                  aria-describedby={error ? "article-url-error" : undefined}
+                  aria-invalid={error ? "true" : "false"}
+                />
+                <p className="mt-2 text-sm text-gray-500">
+                  Tip: paste a DOI (e.g., 10.7554/eLife.80347) or a URL that contains one (e.g., https://doi.org/10.1126/science.169.3946.635).
+                </p>
+                {error && (
+                  <div 
+                    id="article-url-error"
+                    className="mt-2 text-sm text-red-600"
+                    aria-live="polite"
+                  >
+                    {error}
                   </div>
-                ) : (
-                  categories.map((category) => (
-                    <Button
-                      key={category}
-                      variant={selectedCategory === category ? "default" : "outline"}
-                      size="sm"
-                      onClick={() => setSelectedCategory(category)}
-                      className={`${
-                        selectedCategory === category
-                          ? "bg-blue-600 hover:bg-blue-700 text-white"
-                          : "bg-white hover:bg-gray-50 text-gray-700 border-gray-300"
-                      }`}
-                    >
-                      {category}
-                    </Button>
-                  ))
                 )}
               </div>
 
-              <div className="flex items-center gap-2">
-                <Filter className="h-4 w-4 text-gray-500" />
-                <span className="text-sm text-gray-600">Sort by:</span>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="outline" size="sm" className="bg-white">
-                      {sortOptions.find((option) => option.value === sortBy)?.label}
-                      <ChevronDown className="ml-2 h-4 w-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="start">
-                    {sortOptions.map((option) => (
-                      <DropdownMenuItem key={option.value} onClick={() => setSortBy(option.value)}>
-                        {option.label}
-                      </DropdownMenuItem>
-                    ))}
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
-            </div>
+              <Button 
+                type="submit" 
+                disabled={isProcessing || !articleUrl.trim()}
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white h-12 text-base font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                aria-busy={isProcessing}
+                onClick={(e) => {
+                  if (isProcessing) {
+                    e.preventDefault()
+                    return
+                  }
+                }}
+              >
+                {isProcessing ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                    Searching...
+                  </>
+                ) : (
+                  "Find Open-Access Version"
+                )}
+              </Button>
+            </form>
 
-            {isLoading && (
-              <div className="flex items-center justify-center py-12">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-                <span className="ml-3 text-gray-600">Loading articles...</span>
-              </div>
-            )}
-
-            {!isLoading && filteredArticles.length === 0 && (
-              <div className="text-center py-12">
-                <div className="mx-auto h-24 w-24 text-gray-300 mb-4">
-                  <Search className="h-full w-full" />
-                </div>
-                <h3 className="text-lg font-medium text-gray-900 mb-2">No results found</h3>
-                <p className="text-gray-600">Try adjusting your search terms or filters to find what you're looking for.</p>
-              </div>
-            )}
-
-            {!isLoading && filteredArticles.length > 0 && (
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {filteredArticles.map((article) => (
-                  <Card
-                    key={article.id}
-                    className="bg-white hover:shadow-md transition-shadow duration-200 border border-gray-200"
-                  >
-                    <CardHeader className="pb-4">
-                      <div className="flex items-start justify-between gap-4 mb-3">
-                        <Badge variant="outline" className={`${getCategoryColor(article.category)} font-medium`}>
-                          {article.category}
-                        </Badge>
-                        <div className="flex items-center text-sm text-gray-500 gap-1">
-                          <Calendar className="h-4 w-4" />
-                          {formatDate(article.created_at)}
-                        </div>
-                      </div>
-                      <h3 className="text-xl font-bold text-gray-900 leading-tight line-clamp-2">{article.headline}</h3>
-                    </CardHeader>
-                    <CardContent className="pt-0">
-                      <div className="mb-4">
-                        <p className={`text-gray-600 leading-relaxed ${expandedCards.has(article.id) ? '' : 'line-clamp-3'}`}>
-                          {article.summary}
-                        </p>
-                        {article.summary.length > 150 && (
-                          <button
-                            onClick={() => toggleCardExpansion(article.id)}
-                            className="text-blue-600 hover:text-blue-700 font-medium text-sm mt-2 focus:outline-none"
-                          >
-                            {expandedCards.has(article.id) ? 'Read less' : 'Read more'}
-                          </button>
-                        )}
-                      </div>
-
-                      <div className="flex flex-wrap gap-2 mb-4">
-                        {article.tags.slice(0, 3).map((tag) => (
-                          <span
-                            key={tag}
-                            className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800"
-                          >
-                            {tag}
-                          </span>
-                        ))}
-                        {article.tags.length > 3 && (
-                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
-                            +{article.tags.length - 3} more
-                          </span>
-                        )}
-                      </div>
-
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-4 text-sm text-gray-500">
-                          <div className="flex items-center gap-1">
-                            <Bookmark className="h-4 w-4" />
-                            0
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <Share2 className="h-4 w-4" />
-                            0
-                          </div>
-                        </div>
-                        <Button 
-                          className="bg-blue-600 hover:bg-blue-700 text-white"
-                          onClick={() => window.open(article.source_url, '_blank')}
-                        >
-                          Source Article
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            )}
-          </TabsContent>
-
-          <TabsContent value="podcasts" className="space-y-6">
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-12 text-center">
-              <div className="mx-auto h-24 w-24 text-gray-300 mb-6">
-                <svg className="h-full w-full" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
-                </svg>
-              </div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">Podcast Content Lab - Coming Soon</h2>
-              <p className="text-gray-600 max-w-md mx-auto">
-                We're working on bringing you curated medical podcasts and audio content. 
-                Stay tuned for updates!
-              </p>
-            </div>
-          </TabsContent>
-
-          <TabsContent value="paywalled" className="space-y-6">
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
-              <div className="text-center mb-8">
-                <div className="mx-auto h-16 w-16 text-blue-600 mb-4">
-                  <svg className="h-full w-full" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                  </svg>
-                </div>
-                <h2 className="text-2xl font-bold text-gray-900 mb-2">Process a Paywalled Article</h2>
-                <p className="text-gray-600">
-                  Paste a URL or DOI to find open-access versions of paywalled articles
+            <div className="mt-8 w-full space-y-4">
+              <div className={`rounded-lg p-4 border ${
+                isProcessing 
+                  ? "bg-blue-50 border-blue-200" 
+                  : error 
+                    ? "bg-red-50 border-red-200" 
+                    : result?.is_oa
+                      ? "bg-green-50 border-green-200"
+                      : result
+                        ? "bg-yellow-50 border-yellow-200"
+                        : "bg-gray-50 border-gray-200"
+              }`}>
+                <p className={`text-center ${
+                  isProcessing 
+                    ? "text-blue-600" 
+                    : error 
+                      ? "text-red-600" 
+                      : result?.is_oa
+                        ? "text-green-600"
+                        : result
+                          ? "text-yellow-600"
+                          : "text-gray-600"
+                }`}>
+                  {isProcessing && (
+                    <div className="flex items-center justify-center gap-2 mb-2">
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+                    </div>
+                  )}
+                  {statusMessage}
                 </p>
               </div>
 
-              <form onSubmit={handleProcessArticle} className="space-y-6 max-w-2xl mx-auto">
-                <div>
-                  <label htmlFor="article-url" className="block text-sm font-medium text-gray-700 mb-2">
-                    Article URL or DOI
-                  </label>
-                  <Input
-                    id="article-url"
-                    type="text"
-                    value={articleUrl}
-                    onChange={handleInputChange}
-                    placeholder="https://example.com/article or 10.1234/example.doi"
-                    className={`w-full h-12 text-base border-gray-300 focus:border-blue-500 focus:ring-blue-500 ${
-                      error ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : ''
-                    }`}
-                    disabled={isProcessing}
-                    aria-describedby={error ? "article-url-error" : undefined}
-                    aria-invalid={error ? "true" : "false"}
-                  />
-                  <p className="mt-2 text-sm text-gray-500">
-                    Tip: paste a DOI (e.g., 10.7554/eLife.80347) or a URL that contains one (e.g., https://doi.org/10.1126/science.169.3946.635).
+              {!result && !error && !isProcessing && (
+                <div className="bg-gray-50 border border-gray-200 rounded-lg p-8 text-center">
+                  <div className="h-12 w-12 text-gray-300 mb-4">
+                    <svg className="h-full w-full" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                  </div>
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">Ready to Search</h3>
+                  <p className="text-gray-600 w-full">
+                    Enter a DOI or URL above to find open-access versions of paywalled articles. 
+                    We'll search through multiple sources to help you access the research you need.
                   </p>
-                  {error && (
-                    <div 
-                      id="article-url-error"
-                      className="mt-2 text-sm text-red-600"
-                      aria-live="polite"
-                    >
-                      {error}
-                    </div>
-                  )}
                 </div>
+              )}
 
-                <Button 
-                  type="submit" 
-                  disabled={isProcessing || !articleUrl.trim()}
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white h-12 text-base font-medium disabled:opacity-50 disabled:cursor-not-allowed"
-                  aria-busy={isProcessing}
-                  onClick={(e) => {
-                    if (isProcessing) {
-                      e.preventDefault()
-                      return
-                    }
-                  }}
-                >
-                  {isProcessing ? (
-                    <>
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                      Searching...
-                    </>
-                  ) : (
-                    "Find Open-Access Version"
-                  )}
-                </Button>
-              </form>
+              {result && result.is_oa === true && (
+                <div className="bg-green-50 border border-green-200 rounded-lg p-6">
+                  <div className="flex items-center gap-2 mb-4">
+                    <div className="h-2 w-2 bg-green-500 rounded-full"></div>
+                    <Badge className="bg-green-100 text-green-800 border-green-200">
+                      Open Access Found
+                    </Badge>
+                    {result.oa_status && (
+                      <Badge variant="outline" className={`text-xs ${getOAStatusBadgeStyle(result.oa_status)}`}>
+                        {result.oa_status}
+                      </Badge>
+                    )}
+                  </div>
 
-              <div className="mt-8 max-w-2xl mx-auto space-y-4">
-                <div className={`rounded-lg p-4 border ${
-                  isProcessing 
-                    ? "bg-blue-50 border-blue-200" 
-                    : error 
-                      ? "bg-red-50 border-red-200" 
-                      : result?.is_oa
-                        ? "bg-green-50 border-green-200"
-                        : result
-                          ? "bg-yellow-50 border-yellow-200"
-                          : "bg-gray-50 border-gray-200"
-                }`}>
-                  <p className={`text-center ${
-                    isProcessing 
-                      ? "text-blue-600" 
-                      : error 
-                        ? "text-red-600" 
-                        : result?.is_oa
-                          ? "text-green-600"
-                          : result
-                            ? "text-yellow-600"
-                            : "text-gray-600"
-                  }`}>
-                    {isProcessing && (
-                      <div className="flex items-center justify-center gap-2 mb-2">
-                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-3">
+                    {sanitizeTitle(result.title)}
+                  </h3>
+
+                  <div className="space-y-2 text-sm text-gray-600 mb-4">
+                    {result.doi && (
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium">DOI:</span>
+                        <a 
+                          href={`https://doi.org/${result.doi}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-600 hover:text-blue-800 underline"
+                        >
+                          {result.doi}
+                        </a>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => copyDOI(result.doi!)}
+                          disabled={copiedDOI === result.doi}
+                          className="h-6 px-2 text-xs"
+                        >
+                          {copiedDOI === result.doi ? 'Copied' : 'Copy'}
+                        </Button>
                       </div>
                     )}
-                    {statusMessage}
-                  </p>
+                    {(result.journal || result.year) && (
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium">Journal:</span>
+                        <span>{result.journal}{result.year ? ` (${result.year})` : ''}</span>
+                      </div>
+                    )}
+                    {result.license && (
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium">License:</span>
+                        <span>{result.license}</span>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="flex flex-wrap gap-3">
+                    {result.doi && (
+                      <Button 
+                        className="bg-green-600 hover:bg-green-700 text-white font-medium"
+                        onClick={() => {
+                          const url = `https://doi.org/${result.doi}`
+                          window.open(url, '_blank', 'noopener,noreferrer')
+                        }}
+                      >
+                        Open Access
+                      </Button>
+                    )}
+                    {result.open_pdf_url && (
+                      <Button 
+                        variant="outline"
+                        className="border-gray-300 text-gray-700 hover:bg-gray-50"
+                        onClick={() => window.open(result.open_pdf_url!, '_blank', 'noopener,noreferrer')}
+                      >
+                        Direct PDF
+                      </Button>
+                    )}
+                  </div>
                 </div>
+              )}
 
-                {!result && !error && !isProcessing && (
-                  <div className="bg-gray-50 border border-gray-200 rounded-lg p-8 text-center">
-                    <div className="mx-auto h-12 w-12 text-gray-300 mb-4">
-                      <svg className="h-full w-full" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                      </svg>
-                    </div>
-                    <h3 className="text-lg font-medium text-gray-900 mb-2">Ready to Search</h3>
-                    <p className="text-gray-600 max-w-md mx-auto">
-                      Enter a DOI or URL above to find open-access versions of paywalled articles. 
-                      We'll search through multiple sources to help you access the research you need.
-                    </p>
-                  </div>
-                )}
-
-                {result && result.is_oa === true && (
-                  <div className="bg-green-50 border border-green-200 rounded-lg p-6">
-                    <div className="flex items-center gap-2 mb-4">
-                      <div className="h-2 w-2 bg-green-500 rounded-full"></div>
-                      <Badge className="bg-green-100 text-green-800 border-green-200">
-                        Open Access Found
+              {result && result.is_oa === false && (
+                <div className="bg-gray-50 border border-gray-200 rounded-lg p-6">
+                  <div className="flex items-center gap-2 mb-4">
+                    <div className="h-2 w-2 bg-gray-500 rounded-full"></div>
+                    <Badge className="bg-gray-100 text-gray-800 border-gray-200">
+                      No Open Access
+                    </Badge>
+                    {result.oa_status && (
+                      <Badge variant="outline" className={`text-xs ${getOAStatusBadgeStyle(result.oa_status)}`}>
+                        {result.oa_status}
                       </Badge>
-                      {result.oa_status && (
-                        <Badge variant="outline" className={`text-xs ${getOAStatusBadgeStyle(result.oa_status)}`}>
-                          {result.oa_status}
-                        </Badge>
-                      )}
-                    </div>
+                    )}
+                  </div>
 
-                    <h3 className="text-lg font-semibold text-gray-900 mb-3">
-                      {sanitizeTitle(result.title)}
-                    </h3>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-3">
+                    No open-access version found via Unpaywall.
+                  </h3>
 
-                    <div className="space-y-2 text-sm text-gray-600 mb-4">
-                      {result.doi && (
-                        <div className="flex items-center gap-2">
-                          <span className="font-medium">DOI:</span>
-                          <a 
-                            href={`https://doi.org/${result.doi}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-blue-600 hover:text-blue-800 underline"
-                          >
-                            {result.doi}
-                          </a>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => copyDOI(result.doi!)}
-                            disabled={copiedDOI === result.doi}
-                            className="h-6 px-2 text-xs"
-                          >
-                            {copiedDOI === result.doi ? 'Copied' : 'Copy'}
-                          </Button>
-                        </div>
-                      )}
-                      {(result.journal || result.year) && (
-                        <div className="flex items-center gap-2">
-                          <span className="font-medium">Journal:</span>
-                          <span>{result.journal}{result.year ? ` (${result.year})` : ''}</span>
-                        </div>
-                      )}
-                      {result.license && (
-                        <div className="flex items-center gap-2">
-                          <span className="font-medium">License:</span>
-                          <span>{result.license}</span>
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="flex flex-wrap gap-3">
-                      {result.doi && (
-                        <Button 
-                          className="bg-green-600 hover:bg-green-700 text-white font-medium"
-                          onClick={() => {
-                            const url = `https://doi.org/${result.doi}`
-                            window.open(url, '_blank', 'noopener,noreferrer')
-                          }}
+                  <div className="space-y-2 text-sm text-gray-600">
+                    {result.doi && (
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium">Known DOI:</span>
+                        <a 
+                          href={`https://doi.org/${result.doi}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-600 hover:text-blue-800 underline"
                         >
-                          Open Access
-                        </Button>
-                      )}
-                      {result.open_pdf_url && (
-                        <Button 
+                          {result.doi}
+                        </a>
+                        <Button
                           variant="outline"
-                          className="border-gray-300 text-gray-700 hover:bg-gray-50"
-                          onClick={() => window.open(result.open_pdf_url!, '_blank', 'noopener,noreferrer')}
+                          size="sm"
+                          onClick={() => copyDOI(result.doi!)}
+                          disabled={copiedDOI === result.doi}
+                          className="h-6 px-2 text-xs"
                         >
-                          Direct PDF
+                          {copiedDOI === result.doi ? 'Copied' : 'Copy'}
                         </Button>
-                      )}
-                    </div>
+                      </div>
+                    )}
+                    {result.title && (
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium">Title:</span>
+                        <span>{sanitizeTitle(result.title)}</span>
+                      </div>
+                    )}
+                    {(result.journal || result.year) && (
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium">Journal:</span>
+                        <span>{result.journal}{result.year ? ` (${result.year})` : ''}</span>
+                      </div>
+                    )}
                   </div>
-                )}
-
-                {result && result.is_oa === false && (
-                  <div className="bg-gray-50 border border-gray-200 rounded-lg p-6">
-                    <div className="flex items-center gap-2 mb-4">
-                      <div className="h-2 w-2 bg-gray-500 rounded-full"></div>
-                      <Badge className="bg-gray-100 text-gray-800 border-gray-200">
-                        No Open Access
-                      </Badge>
-                      {result.oa_status && (
-                        <Badge variant="outline" className={`text-xs ${getOAStatusBadgeStyle(result.oa_status)}`}>
-                          {result.oa_status}
-                        </Badge>
-                      )}
-                    </div>
-
-                    <h3 className="text-lg font-semibold text-gray-900 mb-3">
-                      No open-access version found via Unpaywall.
-                    </h3>
-
-                    <div className="space-y-2 text-sm text-gray-600">
-                      {result.doi && (
-                        <div className="flex items-center gap-2">
-                          <span className="font-medium">Known DOI:</span>
-                          <a 
-                            href={`https://doi.org/${result.doi}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-blue-600 hover:text-blue-800 underline"
-                          >
-                            {result.doi}
-                          </a>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => copyDOI(result.doi!)}
-                            disabled={copiedDOI === result.doi}
-                            className="h-6 px-2 text-xs"
-                          >
-                            {copiedDOI === result.doi ? 'Copied' : 'Copy'}
-                          </Button>
-                        </div>
-                      )}
-                      {result.title && (
-                        <div className="flex items-center gap-2">
-                          <span className="font-medium">Title:</span>
-                          <span>{sanitizeTitle(result.title)}</span>
-                        </div>
-                      )}
-                      {(result.journal || result.year) && (
-                        <div className="flex items-center gap-2">
-                          <span className="font-medium">Journal:</span>
-                          <span>{result.journal}{result.year ? ` (${result.year})` : ''}</span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}
+                </div>
+              )}
 
 
-              </div>
             </div>
-          </TabsContent>
-        </Tabs>
-      </div>
+          </div>
+        </TabsContent>
+      </Tabs>
     </>
   )
 }

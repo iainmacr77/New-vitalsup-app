@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
-import { SidebarTrigger } from "@/components/ui/sidebar"
+
 import { Separator } from "@/components/ui/separator"
 import {
   Breadcrumb,
@@ -149,9 +149,9 @@ export default function DashboardPage() {
 
   if (loading) {
     return (
-      <div className="flex flex-1 flex-col gap-4 p-4">
+      <div className="flex items-center justify-center py-16">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
           <p className="text-gray-600">Loading dashboard...</p>
         </div>
       </div>
@@ -160,7 +160,7 @@ export default function DashboardPage() {
 
   if (error) {
     return (
-      <div className="flex flex-1 flex-col gap-4 p-4">
+      <div className="flex items-center justify-center py-16">
         <div className="text-center">
           <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-md">
             <p className="text-red-800">{error}</p>
@@ -173,7 +173,6 @@ export default function DashboardPage() {
   return (
     <>
       <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
-        <SidebarTrigger className="-ml-1" />
         <Separator orientation="vertical" className="mr-2 h-4" />
         <div className="flex-1 flex justify-end">
           <div className="relative">
@@ -188,11 +187,11 @@ export default function DashboardPage() {
           </div>
         </div>
       </header>
-      <div className="flex flex-1 flex-col gap-4 p-4">
-        <div className="mb-6">
-          <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
-          <p className="text-muted-foreground mt-1">Welcome back, Iain! 👋</p>
-        </div>
+      
+      <div className="mb-6">
+        <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
+        <p className="text-muted-foreground mt-1">Welcome back, Iain! 👋</p>
+      </div>
 
       {/* Pending Actions Alert */}
       {needsMoreArticles && (
@@ -475,7 +474,6 @@ export default function DashboardPage() {
           </div>
         </CardContent>
       </Card>
-    </div>
     </>
   )
 }

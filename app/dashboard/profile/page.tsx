@@ -15,7 +15,7 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Separator } from "@/components/ui/separator"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { SidebarTrigger } from "@/components/ui/sidebar"
+
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -250,7 +250,7 @@ export default function ProfilePage() {
   return (
     <>
       <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
-        <SidebarTrigger className="-ml-1" />
+
         <Separator orientation="vertical" className="mr-2 h-4" />
         <div className="flex-1 flex justify-end">
           <div className="relative">
@@ -265,79 +265,79 @@ export default function ProfilePage() {
           </div>
         </div>
       </header>
-      <div className="flex flex-1 flex-col gap-4 p-4">
-        <div className="mb-6">
-          <h1 className="text-3xl font-bold tracking-tight">Profile</h1>
-          <p className="text-muted-foreground mt-1">Manage your account settings and preferences</p>
-        </div>
-        <Tabs defaultValue="profile" className="space-y-4">
-          <TabsList>
-            <TabsTrigger value="profile">Profile Information</TabsTrigger>
-            <TabsTrigger value="security">Security</TabsTrigger>
-          </TabsList>
+      
+      <div className="mb-6">
+        <h1 className="text-3xl font-bold tracking-tight">Profile</h1>
+        <p className="text-muted-foreground mt-1">Manage your account settings and preferences</p>
+      </div>
+      <Tabs defaultValue="profile" className="space-y-4">
+        <TabsList>
+          <TabsTrigger value="profile">Profile Information</TabsTrigger>
+          <TabsTrigger value="security">Security</TabsTrigger>
+        </TabsList>
 
-          <TabsContent value="profile" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Profile Information</CardTitle>
-                <CardDescription>Update your personal and practice information</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Form {...profileForm}>
-                  <form onSubmit={profileForm.handleSubmit(onProfileSubmit)} className="space-y-6">
-                    {/* Identity Section */}
-                    <div>
-                      <h3 className="text-lg font-semibold mb-4">Identity</h3>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <FormField
-                          control={profileForm.control}
-                          name="title"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Title</FormLabel>
-                              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                <FormControl>
-                                  <SelectTrigger>
-                                    <SelectValue placeholder="Select title" />
-                                  </SelectTrigger>
-                                </FormControl>
-                                <SelectContent>
-                                  {titleOptions.map((option) => (
-                                    <SelectItem key={option} value={option}>
-                                      {option}
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
+        <TabsContent value="profile" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Profile Information</CardTitle>
+              <CardDescription>Update your personal and practice information</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Form {...profileForm}>
+                <form onSubmit={profileForm.handleSubmit(onProfileSubmit)} className="space-y-6">
+                  {/* Identity Section */}
+                  <div>
+                    <h3 className="text-lg font-semibold mb-4">Identity</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <FormField
+                        control={profileForm.control}
+                        name="title"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Title</FormLabel>
+                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                              <FormControl>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select title" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                {titleOptions.map((option) => (
+                                  <SelectItem key={option} value={option}>
+                                    {option}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
 
-                        <FormField
-                          control={profileForm.control}
-                          name="position"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Position</FormLabel>
-                              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                <FormControl>
-                                  <SelectTrigger>
-                                    <SelectValue placeholder="Select your position" />
-                                  </SelectTrigger>
-                                </FormControl>
-                                <SelectContent>
-                                  {positionOptions.map((option) => (
-                                    <SelectItem key={option} value={option}>
-                                      {option}
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
+                      <FormField
+                        control={profileForm.control}
+                        name="position"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Position</FormLabel>
+                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                              <FormControl>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select your position" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                {positionOptions.map((option) => (
+                                  <SelectItem key={option} value={option}>
+                                    {option}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
                       </div>
 
                       {watchPosition === "Other" && (
@@ -833,7 +833,6 @@ export default function ProfilePage() {
             </Card>
           </TabsContent>
         </Tabs>
-      </div>
-    </>
-  )
-}
+      </>
+    )
+  }

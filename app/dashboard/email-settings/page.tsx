@@ -18,7 +18,7 @@ import { Separator } from "@/components/ui/separator"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { SidebarTrigger } from "@/components/ui/sidebar"
+
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -142,7 +142,6 @@ export default function EmailSettingsPage() {
     return (
       <>
         <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
-          <SidebarTrigger className="-ml-1" />
           <Separator orientation="vertical" className="mr-2 h-4" />
           <Breadcrumb>
             <BreadcrumbList>
@@ -156,9 +155,9 @@ export default function EmailSettingsPage() {
             </BreadcrumbList>
           </Breadcrumb>
         </header>
-        <div className="flex flex-1 flex-col gap-4 p-4">
+        <div className="flex items-center justify-center py-16">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
             <p className="text-gray-600">Loading email settings...</p>
           </div>
         </div>
@@ -169,7 +168,6 @@ export default function EmailSettingsPage() {
   return (
     <>
       <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
-        <SidebarTrigger className="-ml-1" />
         <Separator orientation="vertical" className="mr-2 h-4" />
         <div className="flex-1 flex justify-end">
           <div className="relative">
@@ -184,49 +182,49 @@ export default function EmailSettingsPage() {
           </div>
         </div>
       </header>
-      <div className="flex flex-1 flex-col gap-4 p-4">
-        <div className="mb-6">
-          <h1 className="text-3xl font-bold tracking-tight">Email Settings</h1>
-          <p className="text-muted-foreground mt-1">Configure how your newsletters are sent to patients</p>
-        </div>
+      
+      <div className="mb-6">
+        <h1 className="text-3xl font-bold tracking-tight">Email Settings</h1>
+        <p className="text-muted-foreground mt-1">Configure how your newsletters are sent to patients</p>
+      </div>
 
-        <div className="max-w-4xl space-y-6">
-          {/* Opt-in Email Info */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Shield className="h-5 w-5 text-green-600" />
-                Opt-in Confirmation Emails
-              </CardTitle>
-              <CardDescription>
-                These emails are automatically sent from your registered email address for compliance
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center justify-between p-4 bg-green-50 rounded-lg border border-green-200">
-                <div>
-                  <p className="font-medium text-green-800">
-                    From: {newsletterProfile?.first_name} {newsletterProfile?.last_name} {"<"}
-                    {user?.email}
-                    {">"}
-                  </p>
-                  <p className="text-sm text-green-600 mt-1">Required by law (CAN-SPAM, GDPR) - cannot be changed</p>
-                </div>
-                <CheckCircle className="h-5 w-5 text-green-600" />
+      <div className="w-full space-y-6">
+        {/* Opt-in Email Info */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Shield className="h-5 w-5 text-green-600" />
+              Opt-in Confirmation Emails
+            </CardTitle>
+            <CardDescription>
+              These emails are automatically sent from your registered email address for compliance
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center justify-between p-4 bg-green-50 rounded-lg border border-green-200">
+              <div>
+                <p className="font-medium text-green-800">
+                  From: {newsletterProfile?.first_name} {newsletterProfile?.last_name} {"<"}
+                  {user?.email}
+                  {">"}
+                </p>
+                <p className="text-sm text-green-600 mt-1">Required by law (CAN-SPAM, GDPR) - cannot be changed</p>
               </div>
-            </CardContent>
-          </Card>
+              <CheckCircle className="h-5 w-5 text-green-600" />
+            </div>
+          </CardContent>
+        </Card>
 
-          {/* Newsletter Email Settings */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Mail className="h-5 w-5" />
-                Newsletter "From" Address
-              </CardTitle>
-              <CardDescription>Choose how your newsletters appear in your patients' inboxes</CardDescription>
-            </CardHeader>
-            <CardContent>
+        {/* Newsletter Email Settings */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Mail className="h-5 w-5" />
+              Newsletter "From" Address
+            </CardTitle>
+            <CardDescription>Choose how your newsletters appear in your patients' inboxes</CardDescription>
+          </CardHeader>
+          <CardContent>
               <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                   <FormField
@@ -445,7 +443,6 @@ export default function EmailSettingsPage() {
             </CardContent>
           </Card>
         </div>
-      </div>
-    </>
-  )
-}
+      </>
+    )
+  }
