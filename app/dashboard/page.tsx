@@ -84,13 +84,12 @@ export default function DashboardPage() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch">
           {/* Content Lab */}
           <LockedCard
+            locked={false}
             icon={Library}
             title="Content Lab"
             description="Browse articles & clinician-ready summaries. Access the latest medical research with AI-powered insights."
             primaryHref="/dashboard/content-lab"
             primaryLabel="Open Content Lab"
-            secondaryHref="/dashboard/content-lab"
-            secondaryLabel="Find free version (DOI/URL)"
           />
 
           {/* Podcasts */}
@@ -107,14 +106,12 @@ export default function DashboardPage() {
 
           {/* Patient Newsletters */}
           <LockedCard
-            locked={false}
+            locked={true}
             icon={Send}
             title="Patient Newsletters"
             description="Create and send personalized newsletters to your patients. Build engagement with automated health content."
-            primaryHref="/dashboard/newsletter-insights"
-            primaryLabel="Open Newsletter Insights"
-            secondaryHref="/dashboard/newsletter-insights"
-            secondaryLabel="View Metrics"
+            primaryHref="/dashboard/billing?feature=patient_newsletters"
+            primaryLabel="Set-up Patient Newsletters"
           />
         </div>
 

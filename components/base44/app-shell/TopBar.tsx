@@ -12,6 +12,7 @@ import {
 import { Bell, Menu, Settings, User, LogOut, CreditCard } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 export default function TopBar({ 
   user, 
@@ -71,7 +72,7 @@ export default function TopBar({
       `}</style>
       
       <header className="bg-white/80 backdrop-blur-md border-b border-gray-100 sticky top-0 z-50">
-        <div className="flex items-center justify-between px-4 sm:px-6 h-16">
+        <div className="flex items-center justify-between px-4 sm:px-6 h-20">
           {/* Left Section */}
           <div className="flex items-center gap-4">
             <Button
@@ -83,16 +84,11 @@ export default function TopBar({
               <Menu className="h-5 w-5" />
             </Button>
             
-            {/* Logo */}
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-xl brand-gradient flex items-center justify-center">
-                <div className="w-4 h-4 bg-white rounded-sm opacity-90"></div>
-              </div>
-              <div className="hidden sm:block">
-                <h1 className="text-lg font-semibold text-gray-900">
-                  {getPageTitle(currentRoute)}
-                </h1>
-              </div>
+            {/* Page Title */}
+            <div className="hidden sm:block">
+              <h1 className="text-lg font-semibold text-gray-900">
+                {getPageTitle(currentRoute)}
+              </h1>
             </div>
           </div>
 

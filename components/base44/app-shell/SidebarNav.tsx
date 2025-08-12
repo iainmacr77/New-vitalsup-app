@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import Image from "next/image";
 
 const ICON_MAP: Record<string, React.ComponentType<any>> = {
   '/dashboard': LayoutDashboard,
@@ -88,15 +89,16 @@ export default function SidebarNav({
         `}
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-100/60">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl brand-gradient flex items-center justify-center shadow-sm">
-              <div className="w-5 h-5 bg-white rounded-lg opacity-90"></div>
-            </div>
-            <div>
-              <h2 className="font-bold text-gray-900 text-lg">VitalsUp</h2>
-              <p className="text-xs text-gray-500">Medical Content Hub</p>
-            </div>
+        <div className="flex items-center justify-between p-4">
+          <div className="flex items-center">
+            <Image
+              src="/vitalsup-logo.png"
+              alt="VitalsUp logo"
+              width={43}
+              height={43}
+              className="h-11 w-auto"
+              priority
+            />
           </div>
           <Button
             variant="ghost"
