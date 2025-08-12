@@ -30,13 +30,18 @@ export const metadata: Metadata = {
       }
     ]
   },
-  themeColor: '#ffffff',
-  viewport: 'width=device-width, initial-scale=1',
+
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
     title: 'VitalsUp'
   }
+}
+
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  themeColor: '#ffffff',
 }
 
 export default function RootLayout({

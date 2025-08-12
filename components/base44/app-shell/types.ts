@@ -4,7 +4,7 @@ export const NAV_ITEMS = [
   { label: 'Template Settings', href: '/dashboard/template' },
   { label: 'Email Settings', href: '/dashboard/email-settings' },
   { label: 'Article Feed', href: '/dashboard/articles' },
-  { label: 'Newsletter History', href: '/dashboard/history' },
+  { label: 'Newsletter Insights', href: '/dashboard/newsletter-insights' },
   { label: 'Content Lab', href: '/dashboard/content-lab' },
   { label: 'User Management', href: '/dashboard/users' },
   { label: 'Triage', href: '/dashboard/triage' },

@@ -11,8 +11,7 @@ export const INTERNAL_ROUTE_PREFIXES = [
   '/dashboard/triage',
   '/dashboard/articles',
   '/dashboard/history',
-  '/dashboard/template',
-  '/dashboard/newsletter-insights'
+  '/dashboard/template'
 ] as const;
 
 /**
