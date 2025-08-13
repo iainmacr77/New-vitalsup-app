@@ -16,7 +16,7 @@ export default function PlanBadge({ planLabel }: { planLabel: string }) {
           {planLabel} Plan
         </Badge>
       </div>
-      <Link href="/dashboard/billing">
+      <Link href="/dashboard/profile">
         <Button 
           variant="ghost" 
           size="sm" 

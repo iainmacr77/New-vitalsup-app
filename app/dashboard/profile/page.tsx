@@ -274,6 +274,7 @@ export default function ProfilePage() {
         <TabsList>
           <TabsTrigger value="profile">Profile Information</TabsTrigger>
           <TabsTrigger value="security">Security</TabsTrigger>
+          <TabsTrigger value="billing">Billing</TabsTrigger>
         </TabsList>
 
         <TabsContent value="profile" className="space-y-4">
@@ -829,6 +830,23 @@ export default function ProfilePage() {
                     </div>
                   </form>
                 </Form>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="billing" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Billing</CardTitle>
+                <CardDescription>Manage your subscription and billing information</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center justify-center py-12">
+                  <div className="text-center">
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">Coming Soon</h3>
+                    <p className="text-gray-500">Billing management features will be available soon.</p>
+                  </div>
+                </div>
               </CardContent>
             </Card>
           </TabsContent>

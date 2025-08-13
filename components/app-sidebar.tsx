@@ -2,6 +2,7 @@
 import { useRouter, usePathname } from "next/navigation"
 import { supabase } from "@/lib/supabase"
 import { BarChart3, FileText, Settings, User, History, Beaker, LogOut, ChevronDown, Users, Mail, Shield } from "lucide-react"
+import Link from "next/link"
 
 import {
   Sidebar,
@@ -108,13 +109,38 @@ export function AppSidebar({ user, newsletterProfile, userRole }: AppSidebarProp
 
   return (
     <Sidebar>
-      <SidebarHeader>
-        <div className="flex items-center p-4">
+      {/* Logo outside of SidebarHeader to avoid CSS conflicts */}
+      <div className="flex items-center p-4 relative border-b border-gray-200">
+        <a 
+          href="/dashboard"
+          className="cursor-pointer hover:opacity-80 transition-opacity block relative z-10 pointer-events-auto"
+          onClick={(e) => {
+            e.preventDefault();
+            console.log('Logo clicked!');
+            alert('Logo clicked!'); // Test if click is detected
+            router.push('/dashboard');
+          }}
+          style={{ pointerEvents: 'auto' }}
+        >
           <img
             src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/VitalsUp%20-%20Logo%20%28small%29%20noBG-hquZFbXfEBRhI5RsfDqpaQd7vR4Fss.png"
             alt="VitalsUp"
-            className="w-40 h-auto"
+            className="w-40 h-auto pointer-events-none"
           />
+        </a>
+        
+        {/* Test button to see if the issue is with the logo or the entire sidebar */}
+        <button 
+          onClick={() => alert('Test button clicked!')}
+          className="ml-4 px-3 py-1 bg-blue-500 text-white rounded text-sm"
+        >
+          Test Click
+        </button>
+      </div>
+      
+      <SidebarHeader>
+        <div className="flex items-center p-4">
+          {/* Logo moved above */}
         </div>
       </SidebarHeader>
 

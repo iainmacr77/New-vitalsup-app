@@ -98,7 +98,7 @@ export default function DashboardPage() {
             icon={Headphones}
             title="Podcasts"
             description="Discover and listen to curated medical podcasts. Stay updated with expert discussions and case studies."
-            primaryHref={features.content_podcasts ? "/dashboard/podcasts" : "/dashboard/billing?feature=content_podcasts"}
+            primaryHref={features.content_podcasts ? "/dashboard/podcasts" : "/dashboard/profile"}
             primaryLabel={features.content_podcasts ? "Browse Podcasts" : "Unlock Podcasts"}
             secondaryHref={features.content_podcasts ? "/dashboard/podcasts/how-it-works" : undefined}
             secondaryLabel={features.content_podcasts ? "How it works" : undefined}
@@ -110,7 +110,7 @@ export default function DashboardPage() {
             icon={Send}
             title="Patient Newsletters"
             description="Create and send personalized newsletters to your patients. Build engagement with automated health content."
-            primaryHref="/dashboard/billing?feature=patient_newsletters"
+            primaryHref="/dashboard/profile"
             primaryLabel="Set-up Patient Newsletters"
           />
         </div>
