@@ -45,3 +45,7 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 >>>>>>> 56b4cf5d5ca48e277458437b8842df17a4035b2b
+
+# legacy sidebar + backup layouts
+components/app–sidebar.tsx
+app/dashboard/layout-backup*.tsx

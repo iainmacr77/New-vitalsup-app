@@ -1,7 +1,6 @@
 "use client"
 
 import type React from "react"
-
 import { useState, useEffect, useRef } from "react"
 import { useRouter } from "next/navigation"
 import { supabase } from "@/lib/supabase"
@@ -26,9 +25,7 @@ const formSchema = z.object({
   headshot_url: z.string().optional(),
   welcome_message: z
     .string()
-    .default(
-      '👋 Hello and welcome to this week\'s "An Apple a Day" — your trusted guide to staying happy and healthy.',
-    ),
+    .default('👋 Hello and welcome to this week\'s "An Apple a Day" — your trusted guide to staying happy and healthy.'),
   sender_email: z.string().email().optional(),
   custom_sender_domain: z.boolean().default(false),
   sending_frequency: z.string().default("bi-weekly"),
@@ -54,13 +51,14 @@ export default function OnboardingStep2() {
   const [loading, setLoading] = useState(false)
   const [uploadLoading, setUploadLoading] = useState(false)
   const [user, setUser] = useState<any>(null)
+  const [doctorId, setDoctorId] = useState<string | null>(null)
   const [doctorData, setDoctorData] = useState<any>(null)
   const [previewTab, setPreviewTab] = useState("edit")
   const [currentColorIndex, setCurrentColorIndex] = useState(0)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const router = useRouter()
 
-  // Initialize form
+  // form
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -75,7 +73,7 @@ export default function OnboardingStep2() {
     },
   })
 
-  // Watch form values for preview
+  // watchers
   const watchNewsletterName = form.watch("newsletter_name")
   const watchBackgroundColor = form.watch("background_color")
   const watchHeadshotUrl = form.watch("headshot_url")
@@ -84,117 +82,123 @@ export default function OnboardingStep2() {
   const watchCustomSenderDomain = form.watch("custom_sender_domain")
   const watchSendingFrequency = form.watch("sending_frequency")
 
-  // Fetch user and doctor data
+  // Fetch user → entitlements → guard access → ensure profile → load profile
   useEffect(() => {
-    const fetchData = async () => {
+    const run = async () => {
       const { data: userData } = await supabase.auth.getUser()
-
-      if (userData?.user) {
-        setUser(userData.user)
-
-        // Fetch doctor data
-        const { data: doctorData, error } = await supabase
-          .from("newsletter_profiles")
-          .select("*")
-          .eq("user_id", userData.user.id)
-          .single()
-
-        if (doctorData && !error) {
-          setDoctorData(doctorData)
-
-          // Pre-fill form with existing data if available
-          form.reset({
-            newsletter_name: doctorData.newsletter_name || "An Apple a Day",
-            background_color: doctorData.newsletter_background_color || "soft-blue",
-            headshot_url: doctorData.headshot_url || "",
-            welcome_message:
-              doctorData.newsletter_welcome_message ||
-              '👋 Hello and welcome to this week\'s "An Apple a Day" — your trusted guide to staying happy and healthy.',
-            sender_email: doctorData.sender_email || userData.user.email || "",
-            custom_sender_domain: doctorData.custom_sender_domain || false,
-            sending_frequency: doctorData.sending_frequency || "bi-weekly",
-          })
-
-          if (doctorData.newsletter_background_color) {
-            const colorIndex = backgroundColors.findIndex((c) => c.id === doctorData.newsletter_background_color)
-            if (colorIndex !== -1) {
-              setCurrentColorIndex(colorIndex)
-            }
-          }
-        } else {
-          // Redirect to step 1 if no doctor data found
-          router.push("/onboarding/step1")
-        }
-      } else {
+      if (!userData?.user) {
         router.push("/login")
+        return
+      }
+      setUser(userData.user)
+
+      // pull user entitlements (first org)
+      const { data: ents, error: entError } = await supabase
+        .from("user_entitlements_v")
+        .select("*")
+        .eq("user_id", userData.user.id)
+
+      if (entError || !ents || ents.length === 0) {
+        // no org yet → send to dashboard to recover
+        router.replace("/dashboard")
+        return
+      }
+
+      const ent = ents[0]
+      setDoctorId(ent.doctor_id)
+
+      // guard: needs patient newsletters entitlement
+      if (!ent.can_patient_newsletters) {
+        router.replace("/dashboard")
+        return
+      }
+
+      // safety: ensure profile exists (no-op if present)
+      await supabase.rpc("ensure_newsletter_profile", { _doctor_id: ent.doctor_id })
+
+      // load profile for this org (not by user_id to avoid ambiguity)
+      const { data: profile, error: profErr } = await supabase
+        .from("newsletter_profiles")
+        .select("*")
+        .eq("id", ent.doctor_id)
+        .maybeSingle()
+
+      if (profErr || !profile) {
+        router.replace("/dashboard")
+        return
+      }
+
+      setDoctorData(profile)
+
+      // prefill form
+      form.reset({
+        newsletter_name: profile.newsletter_name || "An Apple a Day",
+        background_color: profile.newsletter_background_color || "soft-blue",
+        headshot_url: profile.headshot_url || "",
+        welcome_message:
+          profile.newsletter_welcome_message ||
+          '👋 Hello and welcome to this week\'s "An Apple a Day" — your trusted guide to staying happy and healthy.',
+        sender_email: profile.sender_email || userData.user.email || "",
+        custom_sender_domain: profile.custom_sender_domain || false,
+        sending_frequency: profile.sending_frequency || "bi-weekly",
+      })
+
+      if (profile.newsletter_background_color) {
+        const idx = backgroundColors.findIndex((c) => c.id === profile.newsletter_background_color)
+        if (idx !== -1) setCurrentColorIndex(idx)
       }
     }
 
-    fetchData()
+    run()
   }, [router, form])
 
-  // Handle headshot upload
+  // uploads
   const handleHeadshotUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
     if (!file || !user) return
 
     setUploadLoading(true)
     try {
-      // Create a unique file path
       const fileExt = file.name.split(".").pop()
       const fileName = `${user.id}-${Math.random().toString(36).substring(2)}.${fileExt}`
       const filePath = `headshots/${fileName}`
 
-      // Upload to Supabase Storage
-      const { error: uploadError, data } = await supabase.storage.from("doctor-headshots").upload(filePath, file)
-
+      const { error: uploadError } = await supabase.storage.from("doctor-headshots").upload(filePath, file)
       if (uploadError) throw uploadError
 
-      // Get public URL
       const { data: publicUrlData } = supabase.storage.from("doctor-headshots").getPublicUrl(filePath)
-
-      if (publicUrlData) {
-        form.setValue("headshot_url", publicUrlData.publicUrl)
-      }
-    } catch (error) {
-      console.error("Error uploading headshot:", error)
+      if (publicUrlData) form.setValue("headshot_url", publicUrlData.publicUrl)
+    } catch (e) {
+      console.error("Error uploading headshot:", e)
       alert("There was an error uploading your headshot. Please try again.")
     } finally {
       setUploadLoading(false)
     }
   }
 
-  // Handle color carousel navigation
+  // color nav
   const navigateColor = (direction: "next" | "prev") => {
-    if (direction === "next") {
-      setCurrentColorIndex((prev) => (prev + 1) % backgroundColors.length)
-    } else {
-      setCurrentColorIndex((prev) => (prev - 1 + backgroundColors.length) % backgroundColors.length)
-    }
-    form.setValue(
-      "background_color",
-      backgroundColors[
-        direction === "next"
-          ? (currentColorIndex + 1) % backgroundColors.length
-          : (currentColorIndex - 1 + backgroundColors.length) % backgroundColors.length
-      ].id,
-    )
+    const nextIndex =
+      direction === "next"
+        ? (currentColorIndex + 1) = (currentColorIndex + 1) % backgroundColors.length
+        : (currentColorIndex - 1 + backgroundColors.length) % backgroundColors.length
+    setCurrentColorIndex(nextIndex)
+    form.setValue("background_color", backgroundColors[nextIndex].id)
   }
 
-  // Handle form submission
+  // submit
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    if (!user || !doctorData) return
+    if (!user || !doctorId) return
 
     setLoading(true)
     try {
       // Generate sender email if using custom domain
       let senderEmail = values.sender_email
       if (values.custom_sender_domain) {
-        const doctorName = `${doctorData.last_name || "doctor"}`.toLowerCase().replace(/\s+/g, "")
+        const doctorName = `${doctorData?.last_name || "doctor"}`.toLowerCase().replace(/\s+/g, "")
         senderEmail = `no-reply@${doctorName}.vitalsup.com`
       }
 
-      // Update doctor record with newsletter settings and mark onboarding as completed
       const { error } = await supabase
         .from("newsletter_profiles")
         .update({
@@ -206,14 +210,14 @@ export default function OnboardingStep2() {
           custom_sender_domain: values.custom_sender_domain,
           sending_frequency: values.sending_frequency,
           onboarding_step: 2,
-          onboarding_completed: true, // Mark onboarding as completed
+          onboarding_completed: true,
+          updated_at: new Date().toISOString(),
         })
-        .eq("user_id", user.id)
+        .eq("id", doctorId)
 
       if (error) throw error
 
-      // Navigate to dashboard instead of step 3
-      router.push("/dashboard")
+      router.replace("/dashboard")
     } catch (error) {
       console.error("Error saving newsletter settings:", error)
       alert("There was an error saving your newsletter settings. Please try again.")
@@ -222,22 +226,11 @@ export default function OnboardingStep2() {
     }
   }
 
-  // Get current selected color
+  // preview helpers
   const currentColor = backgroundColors[currentColorIndex]
-
-  // Format current date for preview
-  const currentDate = new Date().toLocaleDateString("en-US", {
-    month: "long",
-    day: "numeric",
-    year: "numeric",
-  })
-
-  // Generate custom domain preview
-  const generateCustomDomain = () => {
-    if (!doctorData) return "no-reply@doctor.vitalsup.com"
-    const doctorName = `${doctorData.last_name || "doctor"}`.toLowerCase().replace(/\s+/g, "")
-    return `no-reply@${doctorName}.vitalsup.com`
-  }
+  const currentDate = new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })
+  const generateCustomDomain = () =>
+    `no-reply@${`${doctorData?.last_name || "doctor"}`.toLowerCase().replace(/\s+/g, "")}.vitalsup.com`
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
@@ -301,13 +294,7 @@ export default function OnboardingStep2() {
                       <div>
                         <h2 className="text-xl font-semibold text-[#363637] mb-4">Background Color</h2>
                         <div className="flex items-center justify-center space-x-4">
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="icon"
-                            onClick={() => navigateColor("prev")}
-                            className="rounded-full"
-                          >
+                          <Button type="button" variant="outline" size="icon" onClick={() => navigateColor("prev")} className="rounded-full">
                             <ChevronLeft className="h-4 w-4" />
                           </Button>
 
@@ -320,25 +307,14 @@ export default function OnboardingStep2() {
                             </div>
                           </div>
 
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="icon"
-                            onClick={() => navigateColor("next")}
-                            className="rounded-full"
-                          >
+                          <Button type="button" variant="outline" size="icon" onClick={() => navigateColor("next")} className="rounded-full">
                             <ChevronRight className="h-4 w-4" />
                           </Button>
                         </div>
                         <div className="flex justify-center mt-2">
                           <div className="flex space-x-1">
                             {backgroundColors.map((color, index) => (
-                              <div
-                                key={color.id}
-                                className={`w-2 h-2 rounded-full ${
-                                  index === currentColorIndex ? "bg-blue-600" : "bg-gray-300"
-                                }`}
-                              />
+                              <div key={color.id} className={`w-2 h-2 rounded-full ${index === currentColorIndex ? "bg-blue-600" : "bg-gray-300"}`} />
                             ))}
                           </div>
                         </div>
@@ -353,11 +329,7 @@ export default function OnboardingStep2() {
                           <div className="flex-shrink-0">
                             {watchHeadshotUrl ? (
                               <div className="relative">
-                                <img
-                                  src={watchHeadshotUrl || "/placeholder.svg"}
-                                  alt="Doctor headshot"
-                                  className="w-32 h-32 object-cover rounded-full border-2 border-gray-200"
-                                />
+                                <img src={watchHeadshotUrl || "/placeholder.svg"} alt="Doctor headshot" className="w-32 h-32 object-cover rounded-full border-2 border-gray-200" />
                                 <Button
                                   type="button"
                                   variant="destructive"
@@ -383,20 +355,8 @@ export default function OnboardingStep2() {
                                   <FormLabel>Upload Your Photo</FormLabel>
                                   <FormControl>
                                     <div>
-                                      <input
-                                        type="file"
-                                        accept="image/*"
-                                        ref={fileInputRef}
-                                        onChange={handleHeadshotUpload}
-                                        className="hidden"
-                                      />
-                                      <Button
-                                        type="button"
-                                        variant="outline"
-                                        onClick={() => fileInputRef.current?.click()}
-                                        disabled={uploadLoading}
-                                        className="w-full"
-                                      >
+                                      <input type="file" accept="image/*" ref={fileInputRef} onChange={handleHeadshotUpload} className="hidden" />
+                                      <Button type="button" variant="outline" onClick={() => fileInputRef.current?.click()} disabled={uploadLoading} className="w-full">
                                         {uploadLoading ? (
                                           <>
                                             <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Uploading...
@@ -409,10 +369,7 @@ export default function OnboardingStep2() {
                                       </Button>
                                     </div>
                                   </FormControl>
-                                  <FormDescription>
-                                    Upload a professional headshot to personalize your newsletter (recommended size:
-                                    400x400px)
-                                  </FormDescription>
+                                  <FormDescription>Upload a professional headshot to personalize your newsletter (recommended size: 400x400px)</FormDescription>
                                   <FormMessage />
                                 </FormItem>
                               )}
@@ -433,11 +390,7 @@ export default function OnboardingStep2() {
                             <FormItem>
                               <FormLabel>Personalized Welcome</FormLabel>
                               <FormControl>
-                                <Textarea
-                                  placeholder="👋 Hello and welcome to this week's newsletter..."
-                                  className="min-h-[100px]"
-                                  {...field}
-                                />
+                                <Textarea placeholder="👋 Hello and welcome to this week's newsletter..." className="min-h-[100px]" {...field} />
                               </FormControl>
                               <FormDescription>This message will appear at the top of each newsletter</FormDescription>
                               <FormMessage />
@@ -465,19 +418,13 @@ export default function OnboardingStep2() {
                                 >
                                   <div className="flex items-center space-x-2">
                                     <RadioGroupItem value="false" id="use-own-email" />
-                                    <label
-                                      htmlFor="use-own-email"
-                                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                                    >
+                                    <label htmlFor="use-own-email" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
                                       Use my own email address
                                     </label>
                                   </div>
                                   <div className="flex items-center space-x-2">
                                     <RadioGroupItem value="true" id="use-custom-domain" />
-                                    <label
-                                      htmlFor="use-custom-domain"
-                                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                                    >
+                                    <label htmlFor="use-custom-domain" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
                                       Use VitalsUp custom domain
                                     </label>
                                   </div>
@@ -498,9 +445,7 @@ export default function OnboardingStep2() {
                                 <FormControl>
                                   <Input type="email" placeholder="doctor@example.com" {...field} />
                                 </FormControl>
-                                <FormDescription>
-                                  This email will be used as the sender address for your newsletters
-                                </FormDescription>
+                                <FormDescription>This email will be used as the sender address for your newsletters</FormDescription>
                                 <FormMessage />
                               </FormItem>
                             )}
@@ -513,9 +458,7 @@ export default function OnboardingStep2() {
                               <Mail className="h-5 w-5 text-gray-500 mr-2" />
                               <span className="text-sm font-medium">{generateCustomDomain()}</span>
                             </div>
-                            <p className="text-xs text-gray-500 mt-2">
-                              We'll create a professional no-reply email address for your practice
-                            </p>
+                            <p className="text-xs text-gray-500 mt-2">We'll create a professional no-reply email address for your practice</p>
                           </div>
                         )}
                       </div>
@@ -556,7 +499,7 @@ export default function OnboardingStep2() {
                         <Button
                           type="button"
                           variant="outline"
-                          onClick={() => router.push("/onboarding/step1")}
+                          onClick={() => router.push("/dashboard")}
                           className="px-8"
                         >
                           Back
@@ -564,7 +507,10 @@ export default function OnboardingStep2() {
 
                         <Button
                           type="submit"
-                          className="px-8 py-3 bg-gradient-to-r from-pink-500 to-purple-600 text-white font-semibold rounded-xl hover:from-pink-600 hover:to-purple-700 transition-colors shadow-lg"
+                          className="px-8 py-3 rounded-xl font-semibold text-white shadow-lg
+                                     bg-gradient-to-r from-pink-500 to-blue-600
+                                     hover:from-pink-600 hover:to-blue-700
+                                     focus:outline-none focus:ring-2 focus:ring-pink-300"
                           style={{ opacity: 1 }}
                           disabled={loading}
                         >
@@ -573,7 +519,7 @@ export default function OnboardingStep2() {
                               <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving...
                             </>
                           ) : (
-                            "Next"
+                            "Save & Finish"
                           )}
                         </Button>
                       </div>
@@ -624,11 +570,7 @@ export default function OnboardingStep2() {
 
                           <div className="flex items-center mb-6">
                             {watchHeadshotUrl ? (
-                              <img
-                                src={watchHeadshotUrl || "/placeholder.svg"}
-                                alt="Doctor headshot"
-                                className="w-24 h-24 object-cover rounded-full mr-6"
-                              />
+                              <img src={watchHeadshotUrl || "/placeholder.svg"} alt="Doctor headshot" className="w-24 h-24 object-cover rounded-full mr-6" />
                             ) : (
                               <div className="w-24 h-24 bg-gray-200 rounded-full mr-6 flex items-center justify-center">
                                 <span className="text-gray-400 text-xs">No Image</span>
@@ -673,9 +615,7 @@ export default function OnboardingStep2() {
                                 <Mail className="h-3 w-3 mr-1" />
                                 <span>
                                   From:{" "}
-                                  {watchCustomSenderDomain
-                                    ? generateCustomDomain()
-                                    : watchSenderEmail || "your.email@example.com"}
+                                  {watchCustomSenderDomain ? generateCustomDomain() : watchSenderEmail || "your.email@example.com"}
                                 </span>
                               </div>
                             </div>
@@ -684,8 +624,7 @@ export default function OnboardingStep2() {
                                 <Calendar className="h-3 w-3 mr-1" />
                                 <span>
                                   Frequency:{" "}
-                                  {frequencyOptions.find((f) => f.value === watchSendingFrequency)?.label ||
-                                    "Every 2 Weeks"}
+                                  {frequencyOptions.find((f) => f.value === watchSendingFrequency)?.label || "Every 2 Weeks"}
                                 </span>
                               </div>
                             </div>
