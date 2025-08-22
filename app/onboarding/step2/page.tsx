@@ -180,7 +180,7 @@ export default function OnboardingStep2() {
   const navigateColor = (direction: "next" | "prev") => {
     const nextIndex =
       direction === "next"
-        ? (currentColorIndex + 1) = (currentColorIndex + 1) % backgroundColors.length
+        ? (currentColorIndex + 1) % backgroundColors.length
         : (currentColorIndex - 1 + backgroundColors.length) % backgroundColors.length
     setCurrentColorIndex(nextIndex)
     form.setValue("background_color", backgroundColors[nextIndex].id)
