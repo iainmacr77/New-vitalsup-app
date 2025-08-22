@@ -266,8 +266,8 @@ export default function OnboardingStep1() {
         console.error("Error saving doctor data:", error)
         alert("There was an error saving your information. Please try again.")
       } else {
-        // Navigate to step 2
-        router.push("/onboarding/step2")
+        // Navigate to dashboard
+        router.replace("/dashboard")
       }
     } catch (error) {
       console.error("Error in form submission:", error)
@@ -289,7 +289,6 @@ export default function OnboardingStep1() {
           />
         </div>
         <div className="flex items-center gap-4">
-          <div className="text-sm text-gray-500">Step 1 of 4</div>
         </div>
       </header>
 
