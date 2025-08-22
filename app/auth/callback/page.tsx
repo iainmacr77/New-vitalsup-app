@@ -27,55 +27,36 @@ export default function AuthCallback() {
           const user = data.session.user
           console.log("Auth callback: User authenticated:", user.id)
 
-          // Check if user has a newsletter profile and role
-          const { data: userRoleData, error: roleError } = await supabase
-            .from("user_newsletter_roles")
-            .select(`
-              *,
-              newsletter_profile:newsletter_profiles(*)
-            `)
+          // Query newsletter_profiles by user_id, selecting id, onboarding_completed
+          const { data: profileData, error: profileError } = await supabase
+            .from("newsletter_profiles")
+            .select("id, onboarding_completed")
             .eq("user_id", user.id)
             .maybeSingle()
 
-          console.log("Auth callback: User role check:", userRoleData, roleError)
-
-          if (roleError && roleError.code !== "PGRST116") {
-            console.error("Error checking user role:", roleError)
-            setError(`Database error: ${roleError.message}`)
+          if (profileError) {
+            console.error("Error checking profile:", profileError)
+            setError(`Database error: ${profileError.message}`)
             return
           }
 
-          if (!userRoleData || !userRoleData.newsletter_profile) {
-            // No profile found, redirect to welcome page
+          // If no row exists → router.replace("/welcome")
+          if (!profileData) {
             console.log("Auth callback: No profile found, redirecting to welcome")
-            router.push("/welcome")
+            router.replace("/welcome")
             return
           }
 
-          const profile = userRoleData.newsletter_profile
-          console.log("Auth callback: Profile found:", profile)
-
-          // Check onboarding completion status
-          if (!profile.onboarding_completed) {
-            // Check which step they're on
-            const onboardingStep = profile.onboarding_step || 0
-
-            console.log("Auth callback: Onboarding not complete, step:", onboardingStep)
-
-            if (onboardingStep < 1) {
-              router.push("/onboarding/step1")
-            } else if (onboardingStep < 2) {
-              router.push("/onboarding/step2")
-            } else {
-              // Fallback to step 1 if something's wrong
-              router.push("/onboarding/step1")
-            }
+          // Else if onboarding_completed === false → router.replace("/onboarding/step1")
+          if (!profileData.onboarding_completed) {
+            console.log("Auth callback: Onboarding not complete, redirecting to step1")
+            router.replace("/onboarding/step1")
             return
           }
 
-          // Onboarding is complete, redirect to dashboard
+          // Else → router.replace("/dashboard")
           console.log("Auth callback: Onboarding complete, redirecting to dashboard")
-          router.push("/dashboard")
+          router.replace("/dashboard")
         } else {
           console.log("Auth callback: No user session, redirecting to login")
           router.push("/login")

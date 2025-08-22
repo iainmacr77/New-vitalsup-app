@@ -60,6 +60,15 @@ jspm_packages/
 .rts2_cache_es/
 .rts2_cache_umd/
 
+ feat/onboarding-no-step2-flash
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+ 56b4cf5d5ca48e277458437b8842df17a4035b2b
+
+# macOS
+.DS_Store
+=======
 # Optional REPL history
 .node_repl_history
 
@@ -125,3 +134,4 @@ Temporary Items
 # Legacy sidebar + backup layouts
 components/app–sidebar.tsx
 app/dashboard/layout-backup*.tsx
+main

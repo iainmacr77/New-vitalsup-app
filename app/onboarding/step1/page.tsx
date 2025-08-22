@@ -236,6 +236,8 @@ export default function OnboardingStep1() {
         country: values.country === "Other" ? values.country_other : values.country,
         country_other: values.country === "Other" ? values.country_other : null,
         onboarding_step: 1,
+        onboarding_completed: true,
+        onboarding_completed_at: new Date().toISOString(),
       }
 
       // Check if profile already exists
@@ -263,7 +265,11 @@ export default function OnboardingStep1() {
         console.error("Error saving doctor data:", error)
         alert("There was an error saving your information. Please try again.")
       } else {
+ feat/onboarding-no-step2-flash
+        // Navigate to dashboard
+
         // ✅ NEW: go straight to dashboard, not step 2
+ main
         router.replace("/dashboard")
       }
     } catch (error) {
@@ -286,7 +292,6 @@ export default function OnboardingStep1() {
           />
         </div>
         <div className="flex items-center gap-4">
-          <div className="text-sm text-gray-500">Step 1 of 4</div>
         </div>
       </header>
 
