@@ -239,6 +239,8 @@ export default function OnboardingStep1() {
         country: values.country === "Other" ? values.country_other : values.country,
         country_other: values.country === "Other" ? values.country_other : null,
         onboarding_step: 1,
+        onboarding_completed: true,
+        onboarding_completed_at: new Date().toISOString(),
       }
 
       // Check if profile already exists
