@@ -33,8 +33,7 @@ export default function TopBar({
       '/dashboard/history': 'Newsletter History',
       '/dashboard/content-lab': 'Content Lab',
       '/dashboard/users': 'User Management',
-      '/dashboard/triage': 'Triage',
-      '/dashboard/billing': 'Billing'
+      '/dashboard/triage': 'Triage'
     };
     return routeMap[route] || 'VitalsUp';
   };
@@ -105,7 +104,7 @@ export default function TopBar({
                   {planLabel} Plan
                 </Badge>
               </div>
-              <Link href="/dashboard/billing">
+              <Link href="/dashboard/profile">
                 <Button 
                   variant="ghost" 
                   size="sm" 
@@ -159,7 +158,7 @@ export default function TopBar({
                     Settings
                   </DropdownMenuItem>
                 </Link>
-                <Link href="/dashboard/billing">
+                <Link href="/dashboard/profile">
                   <DropdownMenuItem className="cursor-pointer">
                     <CreditCard className="mr-2 h-4 w-4" />
                     Billing

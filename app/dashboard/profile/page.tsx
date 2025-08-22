@@ -141,45 +141,71 @@ export default function ProfilePage() {
   useEffect(() => {
     const fetchData = async () => {
       const { data: userData } = await supabase.auth.getUser()
-
-      if (userData?.user) {
-        setUser(userData.user)
-
-        const { data: doctorData } = await supabase
-          .from("doctors")
-          .select("*")
-          .eq("user_id", userData.user.id)
-          .maybeSingle()
-
-        if (doctorData) {
-          setDoctorData(doctorData)
-          profileForm.reset({
-            title: doctorData.title || "",
-            first_name: doctorData.first_name || "",
-            last_name: doctorData.last_name || "",
-            position: doctorData.position || "",
-            position_other: doctorData.position_other || "",
-            practice_name: doctorData.practice_name || "",
-            practice_address: doctorData.practice_address || "",
-            specialty: doctorData.specialty || "",
-            specialty_other: doctorData.specialty_other || "",
-            phone_number: doctorData.phone_number || "",
-            mobile_phone: doctorData.mobile_phone || "",
-            communication_preference: doctorData.communication_preference || "",
-            patient_count: doctorData.patient_count || 1000,
-            pms_system: doctorData.pms_system || "",
-            booking_system: doctorData.booking_system || "",
-            clinic_type: doctorData.clinic_type || "",
-            clinic_type_other: doctorData.clinic_type_other || "",
-            country: doctorData.country || "South Africa",
-            country_other: doctorData.country_other || "",
-          })
-        }
-      } else {
+      if (!userData?.user) {
         router.push("/login")
+        return
+      }
+      setUser(userData.user)
+  
+      const { data: row, error } = await supabase
+        .from("newsletter_profiles")
+        .select("*")
+        .eq("user_id", userData.user.id)
+        .maybeSingle()
+  
+      if (error) {
+        console.error("Load profile error:", error)
+        return
+      }
+  
+      if (row) {
+        profileForm.reset({
+          title: row.title ?? "",
+          first_name: row.first_name ?? "",
+          last_name: row.last_name ?? "",
+          position: row.position ?? "",
+          position_other: row.position_other ?? "",
+          practice_name: row.practice_name ?? "",
+          practice_address: row.practice_address ?? "",
+          specialty: row.specialty ?? "",
+          specialty_other: row.specialty_other ?? "",
+          phone_number: row.phone_number ?? "",
+          mobile_phone: row.mobile_phone ?? "",
+          communication_preference: row.communication_preference ?? "",
+          patient_count: typeof row.patient_count === "number" ? row.patient_count : 1000, // fallback only for number field
+          pms_system: row.pms_system ?? "",
+          booking_system: row.booking_system ?? "",
+          clinic_type: row.clinic_type ?? "",
+          clinic_type_other: row.clinic_type_other ?? "",
+          country: row.country ?? "",
+          country_other: row.country_other ?? "",
+        })
+      } else {
+        // No row yet — keep fields empty; validation will prompt users as needed
+        profileForm.reset({
+          title: "",
+          first_name: "",
+          last_name: "",
+          position: "",
+          position_other: "",
+          practice_name: "",
+          practice_address: "",
+          specialty: "",
+          specialty_other: "",
+          phone_number: "",
+          mobile_phone: "",
+          communication_preference: "",
+          patient_count: 1000,  // numeric needs a value to avoid NaN in the UI
+          pms_system: "",
+          booking_system: "",
+          clinic_type: "",
+          clinic_type_other: "",
+          country: "",
+          country_other: "",
+        })
       }
     }
-
+  
     fetchData()
   }, [router, profileForm])
 
@@ -193,17 +219,21 @@ export default function ProfilePage() {
   // Handle profile form submission
   const onProfileSubmit = async (values: z.infer<typeof profileSchema>) => {
     if (!user) return
-
+  
     setLoading(true)
     try {
-      const updateData = {
+      const payload = {
+        user_id: user.id,                           // 👈 conflict key
+        email: user.email,                          // keep email synced
         title: values.title,
         first_name: values.first_name,
         last_name: values.last_name,
         position: values.position === "Other" ? values.position_other : values.position,
+        position_other: values.position === "Other" ? values.position_other : null,
         practice_name: values.practice_name,
         practice_address: values.practice_address,
         specialty: values.specialty === "Other" ? values.specialty_other : values.specialty,
+        specialty_other: values.specialty === "Other" ? values.specialty_other : null,
         phone_number: values.phone_number || null,
         mobile_phone: values.mobile_phone || null,
         communication_preference: values.communication_preference,
@@ -211,17 +241,25 @@ export default function ProfilePage() {
         pms_system: values.pms_system || null,
         booking_system: values.booking_system || null,
         clinic_type: values.clinic_type === "Other" ? values.clinic_type_other : values.clinic_type,
+        clinic_type_other: values.clinic_type === "Other" ? values.clinic_type_other : null,
         country: values.country === "Other" ? values.country_other : values.country,
+        country_other: values.country === "Other" ? values.country_other : null,
+        updated_at: new Date().toISOString(),
       }
-
-      const { error } = await supabase.from("doctors").update(updateData).eq("user_id", user.id)
-
+  
+      // ✅ idempotent write (no duplicates)
+      const { error } = await supabase
+        .from("newsletter_profiles")
+        .upsert(payload, { onConflict: "user_id" })
+        .select()
+        .single()
+  
       if (error) throw error
-
+  
       alert("Profile updated successfully!")
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error updating profile:", error)
-      alert("There was an error updating your profile. Please try again.")
+      alert(error?.message || "There was an error updating your profile. Please try again.")
     } finally {
       setLoading(false)
     }
@@ -274,6 +312,7 @@ export default function ProfilePage() {
         <TabsList>
           <TabsTrigger value="profile">Profile Information</TabsTrigger>
           <TabsTrigger value="security">Security</TabsTrigger>
+          <TabsTrigger value="billing">Billing</TabsTrigger>
         </TabsList>
 
         <TabsContent value="profile" className="space-y-4">
@@ -829,6 +868,23 @@ export default function ProfilePage() {
                     </div>
                   </form>
                 </Form>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="billing" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Billing</CardTitle>
+                <CardDescription>Manage your subscription and billing information</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center justify-center py-12">
+                  <div className="text-center">
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">Coming Soon</h3>
+                    <p className="text-gray-500">Billing management features will be available soon.</p>
+                  </div>
+                </div>
               </CardContent>
             </Card>
           </TabsContent>

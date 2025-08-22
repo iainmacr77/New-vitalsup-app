@@ -75,7 +75,7 @@ export default function LockedCard(props: LockedCardProps) {
           
           <div className="mt-6 space-y-3">
             <Link 
-              href={locked ? `/dashboard/billing?feature=${primaryHref.split('=')[1]}` : primaryHref}
+              href={locked ? `/dashboard/profile` : primaryHref}
               className="block"
             >
               <Button 

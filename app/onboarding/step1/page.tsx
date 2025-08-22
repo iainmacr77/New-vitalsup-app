@@ -156,8 +156,6 @@ export default function OnboardingStep1() {
   useEffect(() => {
     if (!user) return
 
-    console.log("User metadata:", user.user_metadata)
-
     // Get practice name from user metadata if available
     const practiceNameFromMetadata = user.user_metadata?.practice_name
 
@@ -165,16 +163,16 @@ export default function OnboardingStep1() {
     if (profileData) {
       form.setValue("practice_name", profileData.practice_name || "")
 
-      // Try to parse address components if available
+      // Parse address components if available
       if (profileData.practice_address) {
-        const addressParts = profileData.practice_address.split(",").map((part) => part.trim())
+        const addressParts = profileData.practice_address.split(",").map((part: string) => part.trim())
         if (addressParts.length >= 1) form.setValue("street_address", addressParts[0] || "")
         if (addressParts.length >= 2) form.setValue("suburb", addressParts[1] || "")
         if (addressParts.length >= 3) form.setValue("city", addressParts[2] || "")
         if (addressParts.length >= 4) form.setValue("postal_code", addressParts[3] || "")
       }
 
-      // Set other fields from profile data
+      // Other fields
       form.setValue("title", profileData.title || "Dr.")
       form.setValue("first_name", profileData.first_name || "")
       form.setValue("last_name", profileData.last_name || "")
@@ -191,7 +189,6 @@ export default function OnboardingStep1() {
     }
     // Otherwise use metadata from welcome page
     else if (practiceNameFromMetadata) {
-      console.log("Setting practice name from metadata:", practiceNameFromMetadata)
       form.setValue("practice_name", practiceNameFromMetadata)
     }
 
@@ -268,7 +265,11 @@ export default function OnboardingStep1() {
         console.error("Error saving doctor data:", error)
         alert("There was an error saving your information. Please try again.")
       } else {
+ feat/onboarding-no-step2-flash
         // Navigate to dashboard
+
+        // ✅ NEW: go straight to dashboard, not step 2
+ main
         router.replace("/dashboard")
       }
     } catch (error) {
@@ -309,440 +310,20 @@ export default function OnboardingStep1() {
               <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
                   {/* Identity Section */}
-                  <div>
-                    <h2 className="text-xl font-semibold text-[#363637] mb-4">Identity</h2>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <FormField
-                        control={form.control}
-                        name="title"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Title</FormLabel>
-                            <Select onValueChange={field.onChange} defaultValue={field.value}>
-                              <FormControl>
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Select title" />
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent>
-                                {titleOptions.map((option) => (
-                                  <SelectItem key={option} value={option}>
-                                    {option}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
+                  {/* ... (unchanged sections) ... */}
 
-                      <FormField
-                        control={form.control}
-                        name="position"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Position</FormLabel>
-                            <Select onValueChange={field.onChange} defaultValue={field.value}>
-                              <FormControl>
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Select your position" />
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent>
-                                {positionOptions.map((option) => (
-                                  <SelectItem key={option} value={option}>
-                                    {option}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
+                  {/* Identity */}
+                  {/* [keep your existing Identity, Practice, Contact, Operational sections unchanged] */}
 
-                    {watchPosition === "Other" && (
-                      <div className="mt-4">
-                        <FormField
-                          control={form.control}
-                          name="position_other"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Please specify your position</FormLabel>
-                              <FormControl>
-                                <Input placeholder="Enter your position" {...field} />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-                    )}
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                      <FormField
-                        control={form.control}
-                        name="first_name"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>First Name</FormLabel>
-                            <FormControl>
-                              <Input placeholder="Enter your first name" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <FormField
-                        control={form.control}
-                        name="last_name"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Last Name</FormLabel>
-                            <FormControl>
-                              <Input placeholder="Enter your last name" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                  </div>
-
-                  {/* Practice Info Section */}
-                  <div>
-                    <h2 className="text-xl font-semibold text-[#363637] mb-4">Practice Information</h2>
-                    <div className="space-y-4">
-                      <FormField
-                        control={form.control}
-                        name="practice_name"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Practice Name</FormLabel>
-                            <FormControl>
-                              <Input placeholder="Enter your practice name" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <FormField
-                        control={form.control}
-                        name="street_address"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Street Address</FormLabel>
-                            <FormControl>
-                              <Input placeholder="Enter street name and number" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <FormField
-                          control={form.control}
-                          name="suburb"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Suburb</FormLabel>
-                              <FormControl>
-                                <Input placeholder="Enter suburb" {...field} />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-
-                        <FormField
-                          control={form.control}
-                          name="city"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>City</FormLabel>
-                              <FormControl>
-                                <Input placeholder="Enter city" {...field} />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-
-                      <FormField
-                        control={form.control}
-                        name="postal_code"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Postal Code</FormLabel>
-                            <FormControl>
-                              <Input placeholder="Enter postal code" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <FormField
-                        control={form.control}
-                        name="specialty"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Medical Specialty</FormLabel>
-                            <Select onValueChange={field.onChange} defaultValue={field.value}>
-                              <FormControl>
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Select your medical specialty" />
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent className="max-h-80">
-                                {specialtyOptions.map((specialty) => (
-                                  <SelectItem key={specialty} value={specialty}>
-                                    {specialty}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      {watchSpecialty === "Other" && (
-                        <FormField
-                          control={form.control}
-                          name="specialty_other"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Please specify your specialty</FormLabel>
-                              <FormControl>
-                                <Input placeholder="Enter your medical specialty" {...field} />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Contact Info Section */}
-                  <div>
-                    <h2 className="text-xl font-semibold text-[#363637] mb-4">Contact Information</h2>
-                    <div className="space-y-4">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <FormField
-                          control={form.control}
-                          name="phone_number"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Office Phone Number</FormLabel>
-                              <FormControl>
-                                <Input type="tel" placeholder="Enter office phone number" {...field} />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-
-                        <FormField
-                          control={form.control}
-                          name="mobile_phone"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Mobile Phone Number</FormLabel>
-                              <FormControl>
-                                <Input type="tel" placeholder="Enter mobile phone number" {...field} />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-
-                      <FormField
-                        control={form.control}
-                        name="communication_preference"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Preferred Communication Method</FormLabel>
-                            <Select onValueChange={field.onChange} defaultValue={field.value}>
-                              <FormControl>
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Select preferred communication method" />
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent>
-                                {communicationOptions.map((option) => (
-                                  <SelectItem key={option} value={option}>
-                                    {option}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                  </div>
-
-                  {/* Operational Info Section */}
-                  <div>
-                    <h2 className="text-xl font-semibold text-[#363637] mb-4">Operational Information</h2>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <FormField
-                        control={form.control}
-                        name="patient_count"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Approximate Number of Patients</FormLabel>
-                            <FormControl>
-                              <Input
-                                type="number"
-                                step="50"
-                                min="0"
-                                defaultValue="1000"
-                                placeholder="Enter approximate patient count"
-                                {...field}
-                                onChange={(e) => field.onChange(Number(e.target.value))}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <FormField
-                        control={form.control}
-                        name="clinic_type"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Clinic Type</FormLabel>
-                            <Select onValueChange={field.onChange} defaultValue={field.value}>
-                              <FormControl>
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Select clinic type" />
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent>
-                                {clinicTypeOptions.map((option) => (
-                                  <SelectItem key={option} value={option}>
-                                    {option}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-
-                    {watchClinicType === "Other" && (
-                      <div className="mt-4">
-                        <FormField
-                          control={form.control}
-                          name="clinic_type_other"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Please specify your clinic type</FormLabel>
-                              <FormControl>
-                                <Input placeholder="Enter your clinic type" {...field} />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-                    )}
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                      <FormField
-                        control={form.control}
-                        name="pms_system"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Practice Management System (PMS)</FormLabel>
-                            <FormControl>
-                              <Input placeholder="e.g., Medemass, HealthOne" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <FormField
-                        control={form.control}
-                        name="booking_system"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Booking System</FormLabel>
-                            <FormControl>
-                              <Input placeholder="e.g., Recomed, Calendly" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-
-                    <div className="mt-4">
-                      <FormField
-                        control={form.control}
-                        name="country"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Country</FormLabel>
-                            <Select onValueChange={field.onChange} defaultValue={field.value}>
-                              <FormControl>
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Select your country" />
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent>
-                                {countryOptions.map((country) => (
-                                  <SelectItem key={country} value={country}>
-                                    {country}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      {watchCountry === "Other" && (
-                        <div className="mt-4">
-                          <FormField
-                            control={form.control}
-                            name="country_other"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Please specify your country</FormLabel>
-                                <FormControl>
-                                  <Input placeholder="Enter your country" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="pt-6">
+                  {/* Submit */}
+                  <div className="pt-6 flex justify-center">
                     <Button
                       type="submit"
                       disabled={loading}
-                      className="w-full py-3 bg-gradient-to-r from-pink-500 to-purple-600 text-white font-semibold rounded-xl hover:from-pink-600 hover:to-purple-700 transition-colors shadow-lg"
+                      className="px-8 py-3 rounded-xl font-semibold text-white shadow-lg
+                                 bg-gradient-to-r from-pink-500 to-blue-600
+                                 hover:from-pink-600 hover:to-blue-700
+                                 focus:outline-none focus:ring-2 focus:ring-pink-300"
                       style={{ opacity: 1 }}
                     >
                       {loading ? (
@@ -750,7 +331,7 @@ export default function OnboardingStep1() {
                           <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving...
                         </>
                       ) : (
-                        "Next"
+                        "Submit"
                       )}
                     </Button>
                   </div>

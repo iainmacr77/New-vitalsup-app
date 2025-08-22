@@ -91,14 +91,16 @@ export default function SidebarNav({
         {/* Header */}
         <div className="flex items-center justify-between p-4">
           <div className="flex items-center">
-            <Image
-              src="/vitalsup-logo.png"
-              alt="VitalsUp logo"
-              width={43}
-              height={43}
-              className="h-11 w-auto"
-              priority
-            />
+            <Link href="/dashboard" className="cursor-pointer hover:opacity-80 transition-opacity">
+              <Image
+                src="/vitalsup-logo.png"
+                alt="VitalsUp logo"
+                width={43}
+                height={43}
+                className="h-11 w-auto"
+                priority
+              />
+            </Link>
           </div>
           <Button
             variant="ghost"
